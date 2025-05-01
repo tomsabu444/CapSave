@@ -1,20 +1,28 @@
-version: '3.9'
+version: "3.9"
 
 services:
   frontend:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
     ports:
       - "3000:3000"
+    env_file:
+      - ./frontend/.env
+    depends_on:
+      - backend
 
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
+      args:
+        NODE_ENV: production
     ports:
       - "5000:5000"
-    volumes:
-      - ./backend:/app
     env_file:
       - ./backend/.env
+    environment:
+      - NODE_ENV=production

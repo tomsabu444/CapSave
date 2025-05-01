@@ -2,13 +2,20 @@ FROM node:22-alpine
 
 WORKDIR /app
 
+ARG NODE_ENV=development
+ENV NODE_ENV=${NODE_ENV}
+
+# Copy and install dependencies based on NODE_ENV
 COPY package.json ./
-RUN npm install
+COPY package-lock.json ./
 
-COPY . ./
+RUN if [ "$NODE_ENV" = "production" ]; then npm install --omit=dev; else npm install; fi
 
-ENV NODE_ENV=development
+# Copy the rest of the application code
+COPY . .
 
 EXPOSE 5000
 
-CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm start; else npm run dev; fi"]
+# Start the application based on NODE_ENV
+CMD ["sh", "-c", "if [ \"$NODE_ENV\" = \"production\" ]; then npm run start; else npm run dev; fi"]
+

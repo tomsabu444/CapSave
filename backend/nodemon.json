@@ -1,0 +1,7 @@
+{
+    "watch": ["."],
+    "ignore": ["node_modules", "dist", ".git"],
+    "ext": "js,json,ts",
+    "exec": "node server.js",
+    "legacyWatch": true
+  }

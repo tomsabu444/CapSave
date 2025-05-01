@@ -1,14 +1,23 @@
-FROM node:22-alpine
+FROM node:22-alpine AS builder
 
 WORKDIR /app
 
 COPY package.json ./
+COPY package-lock.json ./
 RUN npm install
 
-RUN npm install -g serve
-COPY . ./
-
+COPY . .
 RUN npm run build
 
+# Stage 2: Serve the built app using `serve`
+FROM node:22-alpine
+
+WORKDIR /app
+
+RUN npm install -g serve
+
+COPY --from=builder /app/dist ./dist
+
 EXPOSE 3000
+
 CMD ["serve", "-s", "dist", "-l", "3000"]
