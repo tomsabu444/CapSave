@@ -2,7 +2,7 @@ import React from 'react'
 
 function Sidebar() {
   return (
-    <div>Sidebar</div>
+    <div className='w-64 bg-white'>Sidebar</div>
   )
 }
 

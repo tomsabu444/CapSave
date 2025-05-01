@@ -2,7 +2,7 @@ import React from 'react'
 
 function HomePage() {
   return (
-    <div className=' font-bold'>HomePage</div>
+    <div className=' font-bold h-screen'>HomePage</div>
   )
 }
 
