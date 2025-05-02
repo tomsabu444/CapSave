@@ -12,8 +12,9 @@ import {
   registerWithEmail,
   signInWithGoogle,
 } from "../services/authService";
+import { useNavigate } from "react-router-dom";
 
-const AuthFormHandler = ({ isRegister }) => {
+const AuthFormHandler = ({ isRegister, from }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({
     firstName: "",
@@ -27,6 +28,8 @@ const AuthFormHandler = ({ isRegister }) => {
     password: [],
     confirmPassword: "",
   });
+
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -80,6 +83,7 @@ const AuthFormHandler = ({ isRegister }) => {
         const userCred = await loginWithEmail(form.email, form.password);
         console.log("✅ Logged in:", userCred.user);
       }
+      navigate(from, { replace: true });
     } catch (err) {
       alert(err.message);
     }
@@ -89,6 +93,7 @@ const AuthFormHandler = ({ isRegister }) => {
     try {
       const result = await signInWithGoogle();
       console.log("✅ Google signed in:", result.user);
+      navigate(from, { replace: true });
     } catch (err) {
       alert(err.message);
     }

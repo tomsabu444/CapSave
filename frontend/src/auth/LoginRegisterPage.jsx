@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { Typography } from "@mui/material";
 import AuthFormHandler from "../components/AuthFormHandler";
 import logo from "../assets/images/logo_full_dark.svg";
@@ -8,6 +8,8 @@ const LoginRegisterPage = () => {
   const [params] = useSearchParams();
   const navigate = useNavigate();
   const [isRegister, setIsRegister] = useState(false);
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/";
 
   useEffect(() => {
     setIsRegister(params.get("register") === "true");
@@ -23,15 +25,13 @@ const LoginRegisterPage = () => {
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Communets Logo" className="h-12" />
         </div>
-
         <h2 className="text-xl font-semibold text-center mb-4">
           {isRegister ? "Create an Account" : "Welcome Back"}
         </h2>
-
-        <AuthFormHandler isRegister={isRegister} /> {/*//! handles the form submission and validation */}
-
+        <AuthFormHandler isRegister={isRegister} from={from} />
+        {/*//! handles the form submission and validation */}
         <Typography variant="body2" className="text-center mt-4">
-          {isRegister ? "Already have an account?" : "Don’t have an account?"}{" "}
+          {isRegister ? "Already have an account?" : "Don’t have an account?"}
           <button
             type="button"
             onClick={toggleMode}
