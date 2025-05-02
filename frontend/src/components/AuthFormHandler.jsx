@@ -77,8 +77,13 @@ const AuthFormHandler = ({ isRegister, from }) => {
 
     try {
       if (isRegister) {
-        const userCred = await registerWithEmail(form.email, form.password);
-        console.log("✅ Registered:", userCred.user);
+        const fullName = `${form.firstName} ${form.lastName}`;
+        const userCred = await registerWithEmail(
+          form.email,
+          form.password,
+          fullName
+        );
+        console.log("✅ Registered & displayName set:", userCred.user);
       } else {
         const userCred = await loginWithEmail(form.email, form.password);
         console.log("✅ Logged in:", userCred.user);

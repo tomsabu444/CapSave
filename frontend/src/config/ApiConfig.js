@@ -1,6 +1,13 @@
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
-export default {
-  API_BASE_URL,
-  USERS_API: `${API_BASE_URL}/api/v1/users`,
-  MEDIA_API: `${API_BASE_URL}/api/v1/media`,
-};
+let apiBase = import.meta.env.VITE_API_BASE_URL;
+
+if (!apiBase) {
+  if (import.meta.env.MODE === "development") {
+    console.warn(
+      "[API CONFIG] ⚠️ VITE_API_BASE_URL not found in .env. Falling back to http://localhost:5000"
+    );
+  }
+
+  apiBase = "http://localhost:5000";
+}
+
+export const API_BASE_URL = apiBase;

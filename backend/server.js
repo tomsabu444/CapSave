@@ -12,11 +12,12 @@ const PORT = process.env.PORT || 5000;
 connectDB();
 
 // Middlewares
-app.use(cors());
+app.use(cors( ));
 app.use(express.json());
 
 //! Routes
 app.use('/', require('./routes/health'));
+app.use('/api/v1/users', require('./routes/users'));
 
 // Start server
 app.listen(PORT, () => {
