@@ -6,25 +6,61 @@ import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
 import UploadFileIcon from "@mui/icons-material/UploadFile";
 import CameraAltIcon from "@mui/icons-material/CameraAlt";
+import LogoutIcon from "@mui/icons-material/Logout";
 import Avatar from "@mui/material/Avatar";
 import Button from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
+import { signOut } from "firebase/auth";
+import { auth } from "../config/firebase";
+import { useNavigate } from "react-router-dom";
 
 function Navbar({ onHamburgerClick }) {
+  const navigate = useNavigate();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileAddMenu, setShowMobileAddMenu] = useState(false);
-  const [darkMode, setDarkMode] = useState(false); // dummy theme toggle
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [darkMode, setDarkMode] = useState(false);
+
+  const user = auth.currentUser;
+
+  const handleSignOut = async () => {
+    await signOut(auth);
+    navigate("/login"); // Navigate to the login page after sign out
+  };
+
+  const renderProfileMenu = () => (
+    <ClickAwayListener onClickAway={() => setShowProfileMenu(false)}>
+      <div className="absolute top-12 right-0 w-64 bg-white shadow-md rounded-md z-50 p-4 space-y-2">
+        <div className="text-left text-sm text-gray-800 font-semibold">
+          {user?.displayName || "No Name"}
+        </div>
+        <div className="text-left text-sm text-gray-500 truncate">
+          {user?.email || "No Email"}
+        </div>
+        <div className="border-t my-2"></div>
+        <Button
+          variant="outlined"
+          color="error"
+          startIcon={<LogoutIcon />}
+          fullWidth
+          onClick={handleSignOut}
+        >
+          Sign Out
+        </Button>
+      </div>
+    </ClickAwayListener>
+  );
 
   return (
-    <div className="relative h-18 bg-white flex items-center px-4  justify-between">
+    <div className="relative h-18 bg-white flex items-center px-4 justify-between">
       {/* 🍔 Hamburger (Mobile only) */}
-      <button onClick={onHamburgerClick} className="xl:hidden text-blue-600">
+      <button onClick={onHamburgerClick} className="lg:hidden text-blue-600">
         <MenuIcon fontSize="medium" />
       </button>
 
       {/* 🔍 Search (Desktop) */}
-      <div className="hidden xl:flex items-center w-1/3 max-w-sm relative">
+      <div className="hidden lg:flex items-center w-1/3 max-w-sm relative">
         <SearchIcon className="absolute left-3 text-gray-400" />
         <input
           type="text"
@@ -36,53 +72,46 @@ function Navbar({ onHamburgerClick }) {
       </div>
 
       {/* 🖥️ Desktop Controls */}
-      <div className="hidden xl:flex items-center gap-4">
+      <div className="hidden lg:flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Button
-            variant="outlined"
-            size="small"
-            startIcon={<UploadFileIcon />}
-          >
+          <Button variant="outlined" size="small" startIcon={<UploadFileIcon />}>
             Upload
           </Button>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<CameraAltIcon />}
-          >
+          <Button variant="contained" size="small" startIcon={<CameraAltIcon />}>
             Capture
           </Button>
         </div>
 
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="text-blue-600"
-        >
+        <button onClick={() => setDarkMode(!darkMode)} className="text-blue-600 cursor-pointer">
           {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </button>
 
-        {/* Removed AddIcon here */}
-        <Avatar sx={{ width: 32, height: 32 }} />
+        <div className="relative">
+          <button
+            className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
+            onClick={() => setShowProfileMenu((prev) => !prev)}
+          >
+            <Avatar sx={{ width: 32, height: 32 }}>
+              {user?.displayName?.charAt(0) || "?"}
+            </Avatar>
+          </button>
+          {showProfileMenu && renderProfileMenu()}
+        </div>
       </div>
 
       {/* 📱 Mobile Controls */}
-      <div className="flex xl:hidden items-center space-x-3 relative">
+      <div className="flex lg:hidden items-center space-x-3 relative">
         <button onClick={() => setMobileSearchOpen((prev) => !prev)}>
           <SearchIcon className="text-blue-600" />
         </button>
 
-        {/* 🌗 Theme toggle */}
-        <button
-          onClick={() => setDarkMode(!darkMode)}
-          className="text-blue-600"
-        >
+        <button onClick={() => setDarkMode(!darkMode)} className="text-blue-600 cursor-pointer">
           {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </button>
 
-        {/* ➕ Mobile Add Dropdown */}
         <div className="relative">
           <button onClick={() => setShowMobileAddMenu((prev) => !prev)}>
-            <AddIcon className="text-blue-600" />
+            <AddIcon className="text-blue-600 cursor-pointer" />
           </button>
 
           {showMobileAddMenu && (
@@ -113,7 +142,17 @@ function Navbar({ onHamburgerClick }) {
           )}
         </div>
 
-        <Avatar sx={{ width: 32, height: 32 }} />
+        <div className="relative">
+          <button
+            onClick={() => setShowProfileMenu((prev) => !prev)}
+            className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
+          >
+            <Avatar sx={{ width: 32, height: 32 }}>
+              {user?.displayName?.charAt(0) || "?"}
+            </Avatar>
+          </button>
+          {showProfileMenu && renderProfileMenu()}
+        </div>
       </div>
 
       {/* 🔍 Mobile Fullscreen Search Overlay */}
@@ -128,10 +167,7 @@ function Navbar({ onHamburgerClick }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button
-            className="ml-2 text-blue-600 font-semibold"
-            onClick={() => setMobileSearchOpen(false)}
-          >
+          <button className="ml-2 text-blue-600 font-semibold" onClick={() => setMobileSearchOpen(false)}>
             Cancel
           </button>
         </div>
