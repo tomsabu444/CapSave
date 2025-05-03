@@ -34,7 +34,6 @@ const CaptureMediaPage = () => {
   const [openPreview, setOpenPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get camera devices
   useEffect(() => {
     const fetchDevices = async () => {
       const mediaDevices = await navigator.mediaDevices.enumerateDevices();
@@ -69,9 +68,9 @@ const CaptureMediaPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-200 flex flex-col">
-      {/* Camera Preview */}
-      <div className="flex-grow flex justify-center items-center bg-black">
+    <div className="w-full h-full bg-gray-200 flex flex-col overflow-hidden">
+      {/* Camera View */}
+      <div className="flex-1 flex justify-center  overflow-hidden">
         <Webcam
           ref={webcamRef}
           audio={false}
@@ -80,13 +79,13 @@ const CaptureMediaPage = () => {
             ...videoConstraints,
             deviceId: deviceId ? { exact: deviceId } : undefined,
           }}
-          className="w-full max-h-[60vh] object-contain rounded-xl"
+          className="w-[90%] h-[90%] object-contain"
         />
       </div>
 
       {/* Control Bar */}
-      <div className="h-[40vh] bg-gray-200 flex items-center justify-between px-6 relative">
-        {/* Camera Switcher */}
+      <div className="flex-none px-6 py-4 mb-3 bg-gray-200 flex items-center justify-between relative">
+        {/* Camera Selector */}
         <div className="flex items-center gap-2">
           <Cameraswitch className="text-gray-700" />
           <Select
@@ -103,9 +102,8 @@ const CaptureMediaPage = () => {
           </Select>
         </div>
 
-        {/* Capture Buttons */}
+        {/* Action Buttons */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-10">
-          {/* Photo Button */}
           <IconButton
             onClick={capturePhoto}
             className="bg-white hover:bg-blue-100 shadow-xl rounded-full p-4"
@@ -113,7 +111,6 @@ const CaptureMediaPage = () => {
             <PhotoCamera fontSize="large" className="text-blue-600" />
           </IconButton>
 
-          {/* Video Button (wrapped by Recorder) */}
           <ReactMediaRecorder
             video
             render={({ status, startRecording, stopRecording, mediaBlobUrl }) => (
@@ -142,15 +139,13 @@ const CaptureMediaPage = () => {
                   )}
                 </IconButton>
 
-                {/* Video Preview Dialog */}
+                {/* Video Preview */}
                 <Dialog
                   open={openPreview && mediaType === "video"}
                   onClose={() => setOpenPreview(false)}
                   maxWidth="sm"
                   fullWidth
-                  PaperProps={{
-                    className: "bg-gray-900 text-white rounded-lg",
-                  }}
+                  PaperProps={{ className: "bg-gray-900 text-white rounded-lg" }}
                 >
                   <DialogContent>
                     {mediaBlobUrl ? (
@@ -165,19 +160,10 @@ const CaptureMediaPage = () => {
                     )}
                   </DialogContent>
                   <DialogActions className="p-4 flex justify-between">
-                    <Button
-                      onClick={handleRetake}
-                      variant="outlined"
-                      className="text-white border-white hover:bg-gray-800"
-                    >
+                    <Button onClick={handleRetake} variant="outlined" className="text-white border-white hover:bg-gray-800">
                       Retake
                     </Button>
-                    <Button
-                      onClick={handleSave}
-                      variant="contained"
-                      disabled={isLoading}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
+                    <Button onClick={handleSave} variant="contained" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
                       Save
                     </Button>
                   </DialogActions>
@@ -189,37 +175,22 @@ const CaptureMediaPage = () => {
         </div>
       </div>
 
-      {/* Photo Preview Dialog */}
+      {/* Photo Preview */}
       <Dialog
         open={openPreview && mediaType === "photo"}
         onClose={() => setOpenPreview(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          className: "bg-gray-900 text-white rounded-lg",
-        }}
+        PaperProps={{ className: "bg-gray-900 text-white rounded-lg" }}
       >
         <DialogContent className="flex justify-center items-center">
-          <img
-            src={capturedPhoto}
-            alt="Captured"
-            className="w-full rounded-lg shadow"
-          />
+          <img src={capturedPhoto} alt="Captured" className="w-full rounded-lg shadow" />
         </DialogContent>
         <DialogActions className="p-4 flex justify-between">
-          <Button
-            onClick={handleRetake}
-            variant="outlined"
-            className="text-white border-white hover:bg-gray-800"
-          >
+          <Button onClick={handleRetake} variant="outlined" className="text-white border-white hover:bg-gray-800">
             Retake
           </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
+          <Button onClick={handleSave} variant="contained" disabled={isLoading} className="bg-blue-600 hover:bg-blue-700">
             Save
           </Button>
         </DialogActions>
