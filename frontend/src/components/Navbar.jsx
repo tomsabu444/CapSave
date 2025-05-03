@@ -12,8 +12,10 @@ import Button from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
+import { useNavigate } from "react-router-dom";
 
 function Navbar({ onHamburgerClick }) {
+  const navigate = useNavigate();
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileAddMenu, setShowMobileAddMenu] = useState(false);
@@ -24,7 +26,7 @@ function Navbar({ onHamburgerClick }) {
 
   const handleSignOut = async () => {
     await signOut(auth);
-    window.location.reload(); // optional: replace with navigate("/login")
+    navigate("/login"); // Navigate to the login page after sign out
   };
 
   const renderProfileMenu = () => (
