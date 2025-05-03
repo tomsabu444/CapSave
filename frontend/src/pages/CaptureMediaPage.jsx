@@ -1,14 +1,15 @@
-import React, { useState } from "react";
-import { useCamera } from "../hooks/useCamera";
+import React, { useRef, useState, useEffect } from "react";
+import Webcam from "react-webcam";
+import { ReactMediaRecorder } from "react-media-recorder";
 import {
-  Button,
   Dialog,
   DialogActions,
   DialogContent,
+  Button,
   IconButton,
-  LinearProgress,
   MenuItem,
   Select,
+  LinearProgress,
 } from "@mui/material";
 import {
   PhotoCamera,
@@ -18,52 +19,37 @@ import {
   Cameraswitch,
 } from "@mui/icons-material";
 
+const videoConstraints = {
+  width: 1280,
+  height: 720,
+  facingMode: "user",
+};
+
 const CaptureMediaPage = () => {
-  const {
-    videoRef,
-    canvasRef,
-    devices,
-    selectedDeviceId,
-    setSelectedDeviceId,
-    capturedPhoto,
-    recordedVideoURL,
-    capturePhoto,
-    startRecording,
-    stopRecording,
-    recording,
-    reset,
-    isLoading,
-    setIsLoading,
-  } = useCamera();
-
+  const webcamRef = useRef(null);
+  const [devices, setDevices] = useState([]);
+  const [deviceId, setDeviceId] = useState(null);
+  const [capturedPhoto, setCapturedPhoto] = useState(null);
+  const [mediaType, setMediaType] = useState(null);
   const [openPreview, setOpenPreview] = useState(false);
-  const [mediaType, setMediaType] = useState(null); // 'photo' or 'video'
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleCapture = () => {
-    capturePhoto();
-    setMediaType('photo');
+  // Get camera devices
+  useEffect(() => {
+    const fetchDevices = async () => {
+      const mediaDevices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = mediaDevices.filter((d) => d.kind === "videoinput");
+      setDevices(videoInputs);
+      if (videoInputs.length) setDeviceId(videoInputs[0].deviceId);
+    };
+    fetchDevices();
+  }, []);
+
+  const capturePhoto = () => {
+    const imageSrc = webcamRef.current.getScreenshot();
+    setCapturedPhoto(imageSrc);
+    setMediaType("photo");
     setOpenPreview(true);
-  };
-
-  const handleVideo = () => {
-    if (recording) {
-      stopRecording();
-      // Wait for video processing to complete before showing preview
-      setTimeout(() => {
-        setMediaType('video');
-        setOpenPreview(true);
-      }, 1000);
-    } else {
-      startRecording();
-    }
-  };
-
-  const handleRetake = () => {
-    setOpenPreview(false);
-    setTimeout(() => {
-      reset();
-      setMediaType(null);
-    }, 300); // Delay reset until dialog closes
   };
 
   const handleSave = () => {
@@ -71,38 +57,41 @@ const CaptureMediaPage = () => {
     setTimeout(() => {
       setIsLoading(false);
       setOpenPreview(false);
-      reset();
+      setCapturedPhoto(null);
       setMediaType(null);
     }, 1000);
   };
 
+  const handleRetake = () => {
+    setOpenPreview(false);
+    setCapturedPhoto(null);
+    setMediaType(null);
+  };
+
   return (
-    <div className="w-full h-fit justify-center items-center bg-gray-200 flex flex-col relative">
-      {/* 60% Camera Area */}
-      <div className="flex-1 mx-auto flex justify-center items-center">
-        <video
-          ref={videoRef}
-          autoPlay
-          playsInline
-          muted
-          className="w-auto object-contain"
-        />
-        <canvas
-          ref={canvasRef}
-          width={1280}
-          height={720}
-          className="hidden"
+    <div className="w-full h-screen bg-gray-200 flex flex-col">
+      {/* Camera Preview */}
+      <div className="flex-grow flex justify-center items-center bg-black">
+        <Webcam
+          ref={webcamRef}
+          audio={false}
+          screenshotFormat="image/png"
+          videoConstraints={{
+            ...videoConstraints,
+            deviceId: deviceId ? { exact: deviceId } : undefined,
+          }}
+          className="w-full max-h-[60vh] object-contain rounded-xl"
         />
       </div>
 
-      {/* 40% Control Bar Area */}
-      <div className="flex-shrink basis-2/5 w-full px-6 py-6 bg-gray-200 relative flex justify-between items-center">
-        {/* Left: Camera Selector */}
+      {/* Control Bar */}
+      <div className="h-[40vh] bg-gray-200 flex items-center justify-between px-6 relative">
+        {/* Camera Switcher */}
         <div className="flex items-center gap-2">
           <Cameraswitch className="text-gray-700" />
           <Select
-            value={selectedDeviceId || ""}
-            onChange={(e) => setSelectedDeviceId(e.target.value)}
+            value={deviceId || ""}
+            onChange={(e) => setDeviceId(e.target.value)}
             size="small"
             className="bg-white text-black rounded-md shadow-sm w-40"
           >
@@ -114,45 +103,95 @@ const CaptureMediaPage = () => {
           </Select>
         </div>
 
-        {/* Center: Photo + Video Controls */}
-        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-10 items-center">
+        {/* Capture Buttons */}
+        <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-10">
           {/* Photo Button */}
           <IconButton
-            onClick={handleCapture}
+            onClick={capturePhoto}
             className="bg-white hover:bg-blue-100 shadow-xl rounded-full p-4"
-            size="large"
-            disabled={recording}
           >
             <PhotoCamera fontSize="large" className="text-blue-600" />
           </IconButton>
 
-          {/* Video Button */}
-          <IconButton
-            onClick={handleVideo}
-            className={`shadow-xl rounded-full p-4 ${
-              recording
-                ? "bg-red-600 hover:bg-red-700"
-                : "bg-white hover:bg-green-100"
-            }`}
-            size="large"
-          >
-            <Videocam 
-              fontSize="large" 
-              className={recording ? "text-white" : "text-green-600"} 
-            />
-            {recording && (
-              <span className="absolute -top-1 -right-1 flex h-3 w-3">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-3 w-3 bg-red-500"></span>
-              </span>
+          {/* Video Button (wrapped by Recorder) */}
+          <ReactMediaRecorder
+            video
+            render={({ status, startRecording, stopRecording, mediaBlobUrl }) => (
+              <>
+                <IconButton
+                  onClick={
+                    status === "recording"
+                      ? () => {
+                          stopRecording();
+                          setTimeout(() => {
+                            setMediaType("video");
+                            setOpenPreview(true);
+                          }, 500);
+                        }
+                      : startRecording
+                  }
+                  className={`relative shadow-xl rounded-full p-4 ${
+                    status === "recording"
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-white hover:bg-green-100 text-green-600"
+                  }`}
+                >
+                  <Videocam fontSize="large" />
+                  {status === "recording" && (
+                    <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
+                  )}
+                </IconButton>
+
+                {/* Video Preview Dialog */}
+                <Dialog
+                  open={openPreview && mediaType === "video"}
+                  onClose={() => setOpenPreview(false)}
+                  maxWidth="sm"
+                  fullWidth
+                  PaperProps={{
+                    className: "bg-gray-900 text-white rounded-lg",
+                  }}
+                >
+                  <DialogContent>
+                    {mediaBlobUrl ? (
+                      <video
+                        controls
+                        autoPlay
+                        src={mediaBlobUrl}
+                        className="w-full rounded-lg shadow"
+                      />
+                    ) : (
+                      <LinearProgress />
+                    )}
+                  </DialogContent>
+                  <DialogActions className="p-4 flex justify-between">
+                    <Button
+                      onClick={handleRetake}
+                      variant="outlined"
+                      className="text-white border-white hover:bg-gray-800"
+                    >
+                      Retake
+                    </Button>
+                    <Button
+                      onClick={handleSave}
+                      variant="contained"
+                      disabled={isLoading}
+                      className="bg-blue-600 hover:bg-blue-700"
+                    >
+                      Save
+                    </Button>
+                  </DialogActions>
+                  {isLoading && <LinearProgress />}
+                </Dialog>
+              </>
             )}
-          </IconButton>
+          />
         </div>
       </div>
 
-      {/* Preview Dialog */}
+      {/* Photo Preview Dialog */}
       <Dialog
-        open={openPreview}
+        open={openPreview && mediaType === "photo"}
         onClose={() => setOpenPreview(false)}
         maxWidth="sm"
         fullWidth
@@ -161,31 +200,16 @@ const CaptureMediaPage = () => {
         }}
       >
         <DialogContent className="flex justify-center items-center">
-          {mediaType === 'photo' && capturedPhoto && (
-            <img src={capturedPhoto} alt="Captured" className="w-full rounded-lg shadow" />
-          )}
-          {mediaType === 'video' && recordedVideoURL && (
-            <video
-              controls
-              autoPlay
-              src={recordedVideoURL}
-              className="w-full rounded-lg shadow"
-              key={recordedVideoURL} // Force re-render when URL changes
-            />
-          )}
-          {mediaType === 'video' && !recordedVideoURL && (
-            <div className="p-8 text-center">
-              <LinearProgress className="mb-4" />
-              <p>Processing video...</p>
-            </div>
-          )}
+          <img
+            src={capturedPhoto}
+            alt="Captured"
+            className="w-full rounded-lg shadow"
+          />
         </DialogContent>
         <DialogActions className="p-4 flex justify-between">
           <Button
             onClick={handleRetake}
             variant="outlined"
-            color="secondary"
-            startIcon={<Replay />}
             className="text-white border-white hover:bg-gray-800"
           >
             Retake
@@ -193,8 +217,6 @@ const CaptureMediaPage = () => {
           <Button
             onClick={handleSave}
             variant="contained"
-            color="primary"
-            startIcon={<Save />}
             disabled={isLoading}
             className="bg-blue-600 hover:bg-blue-700"
           >
@@ -207,4 +229,4 @@ const CaptureMediaPage = () => {
   );
 };
 
-export default CaptureMediaPage;  
+export default CaptureMediaPage;
