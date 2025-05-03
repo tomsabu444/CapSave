@@ -25,21 +25,21 @@ const Sidebar = forwardRef((props, ref) => {
       {/* 🔲 Mobile Overlay */}
       {isSidebarOpen && (
         <div
-          className="fixed inset-0 bg-black/50 z-40 xl:hidden"
+          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
           onClick={() => setIsSidebarOpen(false)}
         />
       )}
 
       {/* 📌 Sidebar */}
       <aside
-        className={`fixed xl:static flex flex-col h-screen w-64 bg-white z-50 transform transition-transform duration-300 ease-in-out
-        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full xl:translate-x-0"}`}
+        className={`fixed lg:static flex flex-col h-screen w-64 bg-white z-50 transform transition-transform duration-300 ease-in-out
+        ${isSidebarOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         {/* 🔥 Logo */}
-        <div className="flex items-center justify-between md:justify-center py-6 px-4 ">
+        <div className="flex items-center justify-between lg:justify-center py-6 px-4 ">
           <img src={logo_full_dark} alt="Logo" className="w-36 object-contain" />
           {/* Close Icon (Mobile only) */}
-          <button className="xl:hidden" onClick={() => setIsSidebarOpen(false)}>
+          <button className="lg:hidden" onClick={() => setIsSidebarOpen(false)}>
             <CloseIcon className="text-gray-500" />
           </button>
         </div>

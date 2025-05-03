@@ -53,12 +53,12 @@ function Navbar({ onHamburgerClick }) {
   return (
     <div className="relative h-18 bg-white flex items-center px-4 justify-between">
       {/* 🍔 Hamburger (Mobile only) */}
-      <button onClick={onHamburgerClick} className="xl:hidden text-blue-600">
+      <button onClick={onHamburgerClick} className="lg:hidden text-blue-600">
         <MenuIcon fontSize="medium" />
       </button>
 
       {/* 🔍 Search (Desktop) */}
-      <div className="hidden xl:flex items-center w-1/3 max-w-sm relative">
+      <div className="hidden lg:flex items-center w-1/3 max-w-sm relative">
         <SearchIcon className="absolute left-3 text-gray-400" />
         <input
           type="text"
@@ -70,7 +70,7 @@ function Navbar({ onHamburgerClick }) {
       </div>
 
       {/* 🖥️ Desktop Controls */}
-      <div className="hidden xl:flex items-center gap-4">
+      <div className="hidden lg:flex items-center gap-4">
         <div className="flex items-center gap-2">
           <Button variant="outlined" size="small" startIcon={<UploadFileIcon />}>
             Upload
@@ -98,7 +98,7 @@ function Navbar({ onHamburgerClick }) {
       </div>
 
       {/* 📱 Mobile Controls */}
-      <div className="flex xl:hidden items-center space-x-3 relative">
+      <div className="flex lg:hidden items-center space-x-3 relative">
         <button onClick={() => setMobileSearchOpen((prev) => !prev)}>
           <SearchIcon className="text-blue-600" />
         </button>
