@@ -1,5 +1,5 @@
 const Media = require('../models/Media');
-const { deleteImagesFromS3 } = require('../utils/deleteImagesFromS3');
+const { deleteMediaFromS3 } = require('../utils/deleteMediaFromS3');
 
 /**
  * Persist a new media record.
@@ -26,7 +26,7 @@ async function deleteMediaById(userId, mediaId) {
     throw err;
   }
 
-  await deleteImagesFromS3(media.mediaUrl);
+  await deleteMediaFromS3(media.mediaUrl);
   await media.deleteOne();
 }
 

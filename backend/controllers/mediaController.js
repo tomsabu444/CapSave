@@ -1,7 +1,7 @@
 // backend/controllers/mediaController.js
 const Media = require('../models/Media');
 const uploadMediaToS3 = require('../utils/uploadMediaToS3');
-const { deleteImagesFromS3 } = require('../utils/deleteImagesFromS3');
+const { deleteMediaFromS3 } = require('../utils/deleteMediaFromS3');
 
 /**
  * POST /api/v1/media
@@ -75,7 +75,7 @@ exports.deleteMedia = async function (req, res, next) {
     }
 
     // 2️⃣ Delete the S3 object
-    await deleteImagesFromS3(media.mediaUrl);
+    await deleteMediaFromS3(media.mediaUrl);
 
     // 3️⃣ Remove the MongoDB document
     await media.deleteOne();

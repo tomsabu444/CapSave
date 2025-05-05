@@ -21,7 +21,7 @@ function parseS3KeyFromUrl(url) {
  * @param {string|string[]} urls – a single URL or an array of URLs to delete
  * @returns {Promise<void>}
  */
-async function deleteImagesFromS3(urls) {
+async function deleteMediaFromS3(urls) {
   const list = Array.isArray(urls) ? urls : [urls];
   const commands = list.map((url) => {
     const Key = parseS3KeyFromUrl(url);
@@ -32,4 +32,4 @@ async function deleteImagesFromS3(urls) {
   await Promise.all(commands.map(cmd => s3.send(cmd)));
 }
 
-module.exports = { deleteImagesFromS3 };
+module.exports = { deleteMediaFromS3 };
