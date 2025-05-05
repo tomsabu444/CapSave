@@ -3,13 +3,12 @@ import Webcam from "react-webcam";
 import { ReactMediaRecorder } from "react-media-recorder";
 import {
   Dialog,
-  DialogActions,
   DialogContent,
-  Button,
   IconButton,
   MenuItem,
   Select,
   LinearProgress,
+  Tooltip,
 } from "@mui/material";
 import {
   PhotoCamera,
@@ -34,7 +33,6 @@ const CaptureMediaPage = () => {
   const [openPreview, setOpenPreview] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get camera devices
   useEffect(() => {
     const fetchDevices = async () => {
       const mediaDevices = await navigator.mediaDevices.enumerateDevices();
@@ -69,9 +67,9 @@ const CaptureMediaPage = () => {
   };
 
   return (
-    <div className="w-full h-screen bg-gray-200 flex flex-col">
-      {/* Camera Preview */}
-      <div className="flex-grow flex justify-center items-center bg-black">
+    <div className="w-full h-full bg-gray-200 flex flex-col overflow-hidden">
+      {/* Camera View */}
+      <div className="flex-1 flex justify-center items-center overflow-hidden">
         <Webcam
           ref={webcamRef}
           audio={false}
@@ -80,13 +78,13 @@ const CaptureMediaPage = () => {
             ...videoConstraints,
             deviceId: deviceId ? { exact: deviceId } : undefined,
           }}
-          className="w-full max-h-[60vh] object-contain rounded-xl"
+          className="w-[90%] h-[90%] object-contain"
         />
       </div>
 
       {/* Control Bar */}
-      <div className="h-[40vh] bg-gray-200 flex items-center justify-between px-6 relative">
-        {/* Camera Switcher */}
+      <div className="flex-none px-6 py-4 mb-3 bg-gray-200 flex items-center justify-between relative">
+        {/* Camera Selector */}
         <div className="flex items-center gap-2">
           <Cameraswitch className="text-gray-700" />
           <Select
@@ -103,56 +101,58 @@ const CaptureMediaPage = () => {
           </Select>
         </div>
 
-        {/* Capture Buttons */}
+        {/* Action Buttons */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-10">
-          {/* Photo Button */}
-          <IconButton
-            onClick={capturePhoto}
-            className="bg-white hover:bg-blue-100 shadow-xl rounded-full p-4"
-          >
-            <PhotoCamera fontSize="large" className="text-blue-600" />
-          </IconButton>
+          {/* Capture Photo */}
+          <Tooltip title="Capture Photo">
+            <IconButton
+              onClick={capturePhoto}
+              className="bg-white hover:bg-blue-100 shadow-xl rounded-full p-4"
+            >
+              <PhotoCamera fontSize="large" className="text-blue-600" />
+            </IconButton>
+          </Tooltip>
 
-          {/* Video Button (wrapped by Recorder) */}
+          {/* Capture Video */}
           <ReactMediaRecorder
             video
             render={({ status, startRecording, stopRecording, mediaBlobUrl }) => (
               <>
-                <IconButton
-                  onClick={
-                    status === "recording"
-                      ? () => {
-                          stopRecording();
-                          setTimeout(() => {
-                            setMediaType("video");
-                            setOpenPreview(true);
-                          }, 500);
-                        }
-                      : startRecording
-                  }
-                  className={`relative shadow-xl rounded-full p-4 ${
-                    status === "recording"
-                      ? "bg-red-600 text-white hover:bg-red-700"
-                      : "bg-white hover:bg-green-100 text-green-600"
-                  }`}
-                >
-                  <Videocam fontSize="large" />
-                  {status === "recording" && (
-                    <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
-                  )}
-                </IconButton>
+                <Tooltip title={status === "recording" ? "Stop Recording" : "Start Recording"}>
+                  <IconButton
+                    onClick={() => {
+                      if (status === "recording") {
+                        stopRecording();
+                        setTimeout(() => {
+                          setMediaType("video");
+                          setOpenPreview(true);
+                        }, 500);
+                      } else {
+                        startRecording();
+                      }
+                    }}
+                    className={`relative shadow-xl rounded-full p-4 ${
+                      status === "recording"
+                        ? "bg-red-600 text-white hover:bg-red-700"
+                        : "bg-white hover:bg-green-100 text-green-600"
+                    }`}
+                  >
+                    <Videocam fontSize="large" />
+                    {status === "recording" && (
+                      <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
+                    )}
+                  </IconButton>
+                </Tooltip>
 
-                {/* Video Preview Dialog */}
+                {/* Video Preview */}
                 <Dialog
                   open={openPreview && mediaType === "video"}
                   onClose={() => setOpenPreview(false)}
                   maxWidth="sm"
                   fullWidth
-                  PaperProps={{
-                    className: "bg-gray-900 text-white rounded-lg",
-                  }}
+                  PaperProps={{ className: "bg-gray-900 text-white rounded-lg" }}
                 >
-                  <DialogContent>
+                  <DialogContent className="flex flex-col items-center justify-center gap-4">
                     {mediaBlobUrl ? (
                       <video
                         controls
@@ -161,27 +161,29 @@ const CaptureMediaPage = () => {
                         className="w-full rounded-lg shadow"
                       />
                     ) : (
-                      <LinearProgress />
+                      <LinearProgress className="w-full" />
                     )}
+                    <div className="flex justify-center gap-8 mt-2">
+                      <Tooltip title="Retake">
+                        <IconButton
+                          onClick={handleRetake}
+                          className="bg-red-600 hover:bg-red-700 text-white p-3"
+                        >
+                          <Replay />
+                        </IconButton>
+                      </Tooltip>
+                      <Tooltip title="Save">
+                        <IconButton
+                          onClick={handleSave}
+                          disabled={isLoading}
+                          className="bg-green-600 hover:bg-green-700 text-white p-3"
+                        >
+                          <Save />
+                        </IconButton>
+                      </Tooltip>
+                    </div>
+                    {isLoading && <LinearProgress className="w-full mt-2" />}
                   </DialogContent>
-                  <DialogActions className="p-4 flex justify-between">
-                    <Button
-                      onClick={handleRetake}
-                      variant="outlined"
-                      className="text-white border-white hover:bg-gray-800"
-                    >
-                      Retake
-                    </Button>
-                    <Button
-                      onClick={handleSave}
-                      variant="contained"
-                      disabled={isLoading}
-                      className="bg-blue-600 hover:bg-blue-700"
-                    >
-                      Save
-                    </Button>
-                  </DialogActions>
-                  {isLoading && <LinearProgress />}
                 </Dialog>
               </>
             )}
@@ -189,41 +191,37 @@ const CaptureMediaPage = () => {
         </div>
       </div>
 
-      {/* Photo Preview Dialog */}
+      {/* Photo Preview */}
       <Dialog
         open={openPreview && mediaType === "photo"}
         onClose={() => setOpenPreview(false)}
         maxWidth="sm"
         fullWidth
-        PaperProps={{
-          className: "bg-gray-900 text-white rounded-lg",
-        }}
+        PaperProps={{ className: "bg-gray-900 text-white rounded-lg" }}
       >
-        <DialogContent className="flex justify-center items-center">
-          <img
-            src={capturedPhoto}
-            alt="Captured"
-            className="w-full rounded-lg shadow"
-          />
+        <DialogContent className="flex flex-col items-center justify-center gap-4">
+          <img src={capturedPhoto} alt="Captured" className="w-full rounded-lg shadow" />
+          <div className="flex justify-center gap-8 mt-2">
+            <Tooltip title="Retake">
+              <IconButton
+                onClick={handleRetake}
+                className=" text-white p-3"
+              >
+                <Replay className="text-red-600 hover:text-red-700" />
+              </IconButton>
+            </Tooltip>
+            <Tooltip title="Save">
+              <IconButton
+                onClick={handleSave}
+                disabled={isLoading}
+                className=" text-white p-3"
+              >
+                <Save className="text-green-600 hover:text-green-700" />
+              </IconButton>
+            </Tooltip>
+          </div>
+          {isLoading && <LinearProgress className="w-full mt-2" />}
         </DialogContent>
-        <DialogActions className="p-4 flex justify-between">
-          <Button
-            onClick={handleRetake}
-            variant="outlined"
-            className="text-white border-white hover:bg-gray-800"
-          >
-            Retake
-          </Button>
-          <Button
-            onClick={handleSave}
-            variant="contained"
-            disabled={isLoading}
-            className="bg-blue-600 hover:bg-blue-700"
-          >
-            Save
-          </Button>
-        </DialogActions>
-        {isLoading && <LinearProgress />}
       </Dialog>
     </div>
   );
