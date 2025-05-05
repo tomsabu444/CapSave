@@ -1,4 +1,6 @@
+// src/components/Navbar.jsx
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
@@ -12,21 +14,24 @@ import Button from "@mui/material/Button";
 import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
-import { useNavigate } from "react-router-dom";
+import MediaUploadModal from "./MediaUploadModal";
+// Capture now navigates to /capture, so no CaptureMediaModal import
 
-function Navbar({ onHamburgerClick }) {
+export default function Navbar({ onHamburgerClick }) {
   const navigate = useNavigate();
+  const user = auth.currentUser;
+
+  // state for various menus and modals
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [showMobileAddMenu, setShowMobileAddMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [darkMode, setDarkMode] = useState(false);
-
-  const user = auth.currentUser;
+  const [uploadOpen, setUploadOpen] = useState(false);
 
   const handleSignOut = async () => {
     await signOut(auth);
-    navigate("/login"); // Navigate to the login page after sign out
+    navigate("/login");
   };
 
   const renderProfileMenu = () => (
@@ -74,22 +79,35 @@ function Navbar({ onHamburgerClick }) {
       {/* 🖥️ Desktop Controls */}
       <div className="hidden lg:flex items-center gap-4">
         <div className="flex items-center gap-2">
-          <Button variant="outlined" size="small" startIcon={<UploadFileIcon />}>
+          <Button
+            variant="outlined"
+            size="small"
+            startIcon={<UploadFileIcon />}
+            onClick={() => setUploadOpen(true)}
+          >
             Upload
           </Button>
-          <Button variant="contained" size="small" startIcon={<CameraAltIcon />}>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<CameraAltIcon />}
+            onClick={() => navigate("/capture")}
+          >
             Capture
           </Button>
         </div>
 
-        <button onClick={() => setDarkMode(!darkMode)} className="text-blue-600 cursor-pointer">
+        <button
+          onClick={() => setDarkMode((dm) => !dm)}
+          className="text-blue-600 cursor-pointer"
+        >
           {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </button>
 
         <div className="relative">
           <button
-            className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
             onClick={() => setShowProfileMenu((prev) => !prev)}
+            className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
           >
             <Avatar sx={{ width: 32, height: 32 }}>
               {user?.displayName?.charAt(0) || "?"}
@@ -105,7 +123,10 @@ function Navbar({ onHamburgerClick }) {
           <SearchIcon className="text-blue-600" />
         </button>
 
-        <button onClick={() => setDarkMode(!darkMode)} className="text-blue-600 cursor-pointer">
+        <button
+          onClick={() => setDarkMode((dm) => !dm)}
+          className="text-blue-600 cursor-pointer"
+        >
           {darkMode ? <LightModeIcon /> : <DarkModeIcon />}
         </button>
 
@@ -123,7 +144,10 @@ function Navbar({ onHamburgerClick }) {
                     size="small"
                     fullWidth
                     startIcon={<UploadFileIcon />}
-                    onClick={() => setShowMobileAddMenu(false)}
+                    onClick={() => {
+                      setUploadOpen(true);
+                      setShowMobileAddMenu(false);
+                    }}
                   >
                     Upload
                   </Button>
@@ -132,7 +156,10 @@ function Navbar({ onHamburgerClick }) {
                     size="small"
                     fullWidth
                     startIcon={<CameraAltIcon />}
-                    onClick={() => setShowMobileAddMenu(false)}
+                    onClick={() => {
+                      navigate("/capture");
+                      setShowMobileAddMenu(false);
+                    }}
                   >
                     Capture
                   </Button>
@@ -167,13 +194,17 @@ function Navbar({ onHamburgerClick }) {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
           />
-          <button className="ml-2 text-blue-600 font-semibold" onClick={() => setMobileSearchOpen(false)}>
+          <button
+            className="ml-2 text-blue-600 font-semibold"
+            onClick={() => setMobileSearchOpen(false)}
+          >
             Cancel
           </button>
         </div>
       )}
+
+      {/* Upload Modal */}
+      {uploadOpen && <MediaUploadModal onClose={() => setUploadOpen(false)} />}
     </div>
   );
 }
-
-export default Navbar;
