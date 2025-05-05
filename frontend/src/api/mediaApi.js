@@ -15,7 +15,7 @@ api.interceptors.request.use(
         config.headers.Authorization = `Bearer ${token}`;
       }
     } catch (err) {
-      console.warn('[albumApi] could not get Firebase token', err);
+      console.warn('[mediaApi] could not get Firebase token', err);
     }
     return config;
   },
