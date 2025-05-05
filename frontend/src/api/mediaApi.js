@@ -7,11 +7,20 @@ const api = axios.create({
 });
 
 // attach Firebase token
-api.interceptors.request.use(async (config) => {
-  const token = await getFirebaseToken();
-  if (token) config.headers.Authorization = `Bearer ${token}`;
-  return config;
-});
+api.interceptors.request.use(
+  async (config) => {
+    try {
+      const token = await getFirebaseToken();
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    } catch (err) {
+      console.warn('[albumApi] could not get Firebase token', err);
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
 
 const mediaApi = {
   // upload a file to an album

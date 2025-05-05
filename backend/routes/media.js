@@ -1,20 +1,19 @@
-    const express = require('express');
-const router  = express.Router();
+// backend/routes/media.js
+const express = require('express');
+const Media = require('../models/Media');
+const uploadMediaToS3 = require('../utils/uploadMediaToS3');
+const { deleteMediaFromS3 } = require('../utils/deleteMediaFromS3');
 const verifyFirebaseToken = require('../middlewares/authMiddleware');
-const uploadMediaToS3     = require('../utils/uploadMediaToS3');
-const {
-  createMedia,
-  getMediaByAlbum,
-  deleteMediaById,
-} = require('../services/mediaService');
 
-// All media routes require a valid Firebase ID token
+const router = express.Router();
+
+//? Middleware to verify Firebase token
 router.use(verifyFirebaseToken);
 
 /**
  * POST /api/v1/media
- *  - multipart field: "mediaFile"
- *  - body: { albumId }
+ *   - multipart field: "mediaFile"
+ *   - body: { albumId }
  */
 router.post(
   '/',
@@ -29,9 +28,9 @@ router.post(
       if (!albumId) return res.status(400).json({ error: 'albumId is required' });
 
       const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'photo';
-      const mediaUrl  = file.location; // multer-s3 provides this
+      const mediaUrl  = file.location;
 
-      const media = await createMedia({ albumId, userId, mediaType, mediaUrl });
+      const media = await Media.create({ albumId, userId, mediaType, mediaUrl });
       res.status(201).json(media);
     } catch (err) {
       next(err);
@@ -44,7 +43,10 @@ router.post(
  */
 router.get('/:albumId', async (req, res, next) => {
   try {
-    const items = await getMediaByAlbum(req.user.uid, req.params.albumId);
+    const userId  = req.user.uid;
+    const albumId = req.params.albumId;
+
+    const items = await Media.find({ userId, albumId }).sort('-createdAt');
     res.json(items);
   } catch (err) {
     next(err);
@@ -56,7 +58,17 @@ router.get('/:albumId', async (req, res, next) => {
  */
 router.delete('/:mediaId', async (req, res, next) => {
   try {
-    await deleteMediaById(req.user.uid, req.params.mediaId);
+    const userId  = req.user.uid;
+    const mediaId = req.params.mediaId;
+
+    const media = await Media.findOne({ _id: mediaId, userId });
+    if (!media) {
+      return res.status(404).json({ error: 'Media not found' });
+    }
+
+    await deleteMediaFromS3(media.mediaUrl);
+    await media.deleteOne();
+
     res.json({ message: 'Media deleted' });
   } catch (err) {
     next(err);
