@@ -2,7 +2,7 @@
 const express = require('express');
 const Album = require('../models/Album');
 const Media = require('../models/Media');
-const deleteMediaFromS3 = require('../utils/deleteMediaFromS3');
+const { deleteMediaFromS3 } = require('../utils/deleteMediaFromS3');
 const verifyFirebaseToken = require('../middlewares/authMiddleware');
 
 const router = express.Router();
