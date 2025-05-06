@@ -1,5 +1,5 @@
 import { getFirebaseToken } from "../utils/firebaseToken";
-import { API_BASE_URL } from "../config/apiConfig";
+import { API_BASE_URL } from "../config/apiconfig";
 
 /**
  * Sends authenticated user data to the backend to be saved in MongoDB.

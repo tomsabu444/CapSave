@@ -8,6 +8,7 @@ import HomePage from "./pages/HomePage";
 import AlbumPage from "./pages/AlbumPage";
 import CaptureMediaPage from "./pages/CaptureMediaPage";
 import ProtectedRoute from "./context/ProtectedRoute";
+import MediaGalleryPage from "./pages/MediaGalleryPage";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
             <Route path="/album" element={<AlbumPage />} />
+            <Route path="/albums/:albumId" element={<MediaGalleryPage />} />
             <Route path="/capture" element={<CaptureMediaPage />} />
           </Route>
         </Route>
