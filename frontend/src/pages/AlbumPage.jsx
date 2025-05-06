@@ -1,5 +1,5 @@
-// src/pages/AlbumPage.jsx
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import IconButton from '@mui/material/IconButton';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -8,6 +8,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import useAlbums from '../hooks/useAlbums';
 
 export default function AlbumPage() {
+  const navigate = useNavigate();
   const { albums, loading, error, add, rename, remove } = useAlbums();
   const [isNewOpen,     setIsNewOpen]     = useState(false);
   const [isRenameOpen,  setIsRenameOpen]  = useState(false);
@@ -46,7 +47,8 @@ export default function AlbumPage() {
           {albums.map((a) => (
             <div
               key={a._id}
-              className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg"
+              className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer"
+              onClick={() => navigate(`/albums/${a._id}`)}
             >
               <img
                 src={a.coverUrl}
@@ -65,7 +67,8 @@ export default function AlbumPage() {
                 <div className="flex items-center space-x-1">
                   <IconButton
                     size="small"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedAlbum(a);
                       setIsRenameOpen(true);
                     }}
@@ -74,7 +77,8 @@ export default function AlbumPage() {
                   </IconButton>
                   <IconButton
                     size="small"
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedAlbum(a);
                       setIsDeleteOpen(true);
                     }}
@@ -127,7 +131,8 @@ export default function AlbumPage() {
             </h2>
             <p className="text-gray-300">
               Are you sure you want to delete{' '}
-              <span className="font-semibold">{selectedAlbum?.albumName}</span>?<br />
+              <span className="font-semibold">{selectedAlbum?.albumName}</span>?
+              <br />
               This will remove all its media.
             </p>
             <div className="mt-6 flex justify-end space-x-2">
