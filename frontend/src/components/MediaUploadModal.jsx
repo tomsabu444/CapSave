@@ -16,7 +16,7 @@ export default function MediaUploadModal({ onClose }) {
   const { upload } = useMedia(albumId);
 
   useEffect(() => {
-    if (albums.length) setAlbumId(albums[0]._id);
+    if (albums.length) setAlbumId(albums[0].albumId);
   }, [albums]);
 
   const handleUpload = async () => {
@@ -65,7 +65,7 @@ export default function MediaUploadModal({ onClose }) {
           size="small"
         >
           {albums.map((a) => (
-            <MenuItem key={a._id} value={a._id}>
+            <MenuItem key={a.albumId} value={a.albumId}>
               {a.albumName}
             </MenuItem>
           ))}

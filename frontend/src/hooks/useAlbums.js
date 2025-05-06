@@ -44,7 +44,7 @@ export default function useAlbums() {
     try {
       const updated = await albumApi.renameAlbum(id, name);
       setAlbums(prev =>
-        prev.map(a => (a._id === id ? updated : a))
+        prev.map(a => (a.albumId === id ? updated : a))
       );
     } catch (err) {
       console.error('[useAlbums] rename error', err);
@@ -56,7 +56,7 @@ export default function useAlbums() {
   const remove = async (id) => {
     try {
       await albumApi.deleteAlbum(id);
-      setAlbums(prev => prev.filter(a => a._id !== id));
+      setAlbums(prev => prev.filter(a => a.albumId !== id));
     } catch (err) {
       console.error('[useAlbums] delete error', err);
       setError(err);

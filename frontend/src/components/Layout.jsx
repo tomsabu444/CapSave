@@ -12,7 +12,7 @@ const Layout = () => {
       <div className="flex flex-col flex-1">
         <Navbar onHamburgerClick={() => sidebarRef.current.toggleSidebar()}/>   {/* Pass the toggle function to Navbar */}
         {/* main content */}
-        <main className="flex-1 md:m-3 md:mr-0 bg-gray-200 md:rounded-2xl overflow-y-auto">
+        <main className="flex-1 md:m-3 md:mr-0 bg-gray-200 md:rounded-l-2xl overflow-y-auto">
           <Outlet />
         </main>
       </div>

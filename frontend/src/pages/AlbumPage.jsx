@@ -46,9 +46,9 @@ export default function AlbumPage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
           {albums.map((a) => (
             <div
-              key={a._id}
+              key={a.albumId}
               className="relative bg-gray-800 rounded-lg overflow-hidden shadow-lg cursor-pointer"
-              onClick={() => navigate(`/albums/${a._id}`)}
+              onClick={() => navigate(`/albums/${a.albumId}`)}
             >
               <img
                 src={a.coverUrl}
@@ -115,7 +115,7 @@ export default function AlbumPage() {
             initialName={selectedAlbum?.albumName || ''}
             onCancel={() => setIsRenameOpen(false)}
             onSubmit={async (name) => {
-              await rename(selectedAlbum._id, name);
+              await rename(selectedAlbum.albumId, name);
               setIsRenameOpen(false);
             }}
           />
@@ -148,7 +148,7 @@ export default function AlbumPage() {
                 color="error"
                 size="small"
                 onClick={async () => {
-                  await remove(selectedAlbum._id);
+                  await remove(selectedAlbum.albumId);
                   setIsDeleteOpen(false);
                 }}
               >

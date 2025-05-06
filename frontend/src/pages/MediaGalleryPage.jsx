@@ -17,7 +17,7 @@ export default function MediaGalleryPage() {
     return <p className="p-6 text-red-500">Error: {error.message}</p>;
   }
 
-  const album = albums.find(a => a._id === albumId);
+  const album = albums.find(a => a.albumId === albumId);
   if (!album) {
     return (
       <div className="p-6 text-center text-gray-400">

@@ -15,10 +15,33 @@ router.use(verifyFirebaseToken);
  */
 router.get('/', async (req, res, next) => {
   try {
+    const userId = req.user.uid;
+
+    // fetch albums
     const albums = await Album
-      .find({ userId: req.user.uid })
+      .find({ userId })
       .sort('-updatedAt');
-    res.json(albums);
+
+    // count media per albumId
+    const counts = await Media.aggregate([
+      { $match: { userId } },
+      { $group: { _id: '$albumId', count: { $sum: 1 } } }
+    ]);
+    const countMap = counts.reduce((map, { _id, count }) => {
+      map[_id.toString()] = count;
+      return map;
+    }, {});
+
+    // build trimmed response
+    const result = albums.map(album => ({
+      albumId:   album._id.toString(),
+      albumName: album.albumName,
+      count:     countMap[album._id.toString()] || 0,
+      createdAt: album.createdAt,
+      updatedAt: album.updatedAt,
+    }));
+
+    res.json(result);
   } catch (err) {
     console.error('getAlbums error', err);
     res.status(500).json({ error: 'Failed to fetch albums' });
