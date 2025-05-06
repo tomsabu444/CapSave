@@ -1,20 +1,30 @@
 import React from "react";
 import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Layout from "./components/Layout";
+
 import LandingPage from "./pages/LandingPage";
+import LoginRegisterPage from "./auth/LoginRegisterPage";
 import HomePage from "./pages/HomePage";
-import LoginRegisterPage from "./pages/LoginRegisterPage";
 import AlbumPage from "./pages/AlbumPage";
 import CaptureMediaPage from "./pages/CaptureMediaPage";
+import ProtectedRoute from "./context/ProtectedRoute";
+import MediaGalleryPage from "./pages/MediaGalleryPage";
 
 function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/Landing" element={<LandingPage />} />
-        <Route path="/" element={<HomePage />} />
+        <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginRegisterPage />} />
-        <Route path="/album" element={<AlbumPage />} />
-        <Route path="/capture" element={<CaptureMediaPage />} />
+        {/* Pages with layout */}
+        <Route element={<ProtectedRoute />}>
+          <Route element={<Layout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/album" element={<AlbumPage />} />
+            <Route path="/albums/:albumId" element={<MediaGalleryPage />} />
+            <Route path="/capture" element={<CaptureMediaPage />} />
+          </Route>
+        </Route>
       </Routes>
     </Router>
   );
