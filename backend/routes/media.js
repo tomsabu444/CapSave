@@ -30,8 +30,15 @@ router.post(
       const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'photo';
       const mediaUrl = file.location;
 
-      await Media.create({ albumId, userId, mediaType, mediaUrl });
-      res.status(201).json({ message: 'Media uploaded successfully' });
+      const media = await Media.create({ albumId, userId, mediaType, mediaUrl });
+
+      const signedUrl = await getSignedUrlFromS3(media.mediaUrl);
+
+      res.status(201).json({
+        mediaId: media._id.toString(),
+        mediaType: media.mediaType,
+        mediaUrl: signedUrl,
+      });
     } catch (err) {
       next(err);
     }
