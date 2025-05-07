@@ -23,6 +23,7 @@ export default function AlbumCard({
               muted
               loop
               autoPlay
+              playsInline
             />
           ) : (
             <img

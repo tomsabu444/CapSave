@@ -17,7 +17,8 @@ router.use(verifyFirebaseToken);
  *  - createdAt
  *  - updatedAt
  *  - coverUrl (signed URL of the most recent media in the album)
- *  - coverType (photo or video)
+ *  - coverType (photo or video) - Indicates the type of the cover media.
+ * Note: The API response now includes the coverType field. Ensure external API documentation reflects this change.
  */
 router.get('/', async (req, res) => {
   try {
