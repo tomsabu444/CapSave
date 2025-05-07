@@ -30,8 +30,8 @@ router.post(
       const mediaType = file.mimetype.startsWith('video/') ? 'video' : 'photo';
       const mediaUrl = file.location;
 
-      const media = await Media.create({ albumId, userId, mediaType, mediaUrl });
-      res.status(201).json(media);
+      await Media.create({ albumId, userId, mediaType, mediaUrl });
+      res.status(201).json({ message: 'Media uploaded successfully' });
     } catch (err) {
       next(err);
     }
@@ -47,24 +47,31 @@ router.get('/:albumId', async (req, res, next) => {
     const userId = req.user.uid;
     const albumId = req.params.albumId;
 
-    const items = await Media.find({ userId, albumId }).sort('-createdAt');
+    const items = await Media.find({ userId, albumId })
+      .sort('-createdAt')
+      .select('_id mediaType mediaUrl');
 
-    const itemsWithSignedUrls = await Promise.all(
+    const sanitizedItems = await Promise.all(
       items.map(async (item) => {
         try {
           const signedUrl = await getSignedUrlFromS3(item.mediaUrl);
           return {
-            ...item.toObject(),
+            mediaId: item._id.toString(),
+            mediaType: item.mediaType,
             mediaUrl: signedUrl,
           };
         } catch (err) {
-          console.error('Failed to generate signed URL:', err.message);
-          return item.toObject(); // Fallback to original
+          console.error('Failed to sign media URL:', err.message);
+          return {
+            mediaId: item._id.toString(),
+            mediaType: item.mediaType,
+            mediaUrl: item.mediaUrl,
+          };
         }
       })
     );
 
-    res.json(itemsWithSignedUrls);
+    res.json(sanitizedItems);
   } catch (err) {
     next(err);
   }

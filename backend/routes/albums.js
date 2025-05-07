@@ -25,7 +25,7 @@ router.get('/', async (req, res) => {
     const userId = req.user.uid;
 
     // fetch albums
-    const albums = await Album.find({ userId }).sort('-updatedAt');
+    const albums = await Album.find({ userId }).sort('-updatedAt').select('_id albumName createdAt updatedAt');
 
     // aggregate counts per albumId
     const counts = await Media.aggregate([
