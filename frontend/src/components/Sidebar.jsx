@@ -50,7 +50,7 @@ const Sidebar = forwardRef((props, ref) => {
           <SidebarItem to="/capture" icon={<CameraAltIcon />} label="Capture" isActive={isActive("/capture")} />
           <hr className="my-3 border-gray-300" />
           <SidebarItem to="/album" icon={<PhotoLibraryIcon />} label="Albums" isActive={isActive("/album")} />
-          <SidebarItem to="/favorites" icon={<FavoriteIcon />} label="Favorites" isActive={isActive("/favorites")} />
+          {/* <SidebarItem to="/favorites" icon={<FavoriteIcon />} label="Favorites" isActive={isActive("/favorites")} /> */}
         </nav>
       </aside>
     </>

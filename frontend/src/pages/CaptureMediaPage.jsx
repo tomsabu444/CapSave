@@ -56,7 +56,7 @@ export default function CaptureMediaPage() {
 
   useEffect(() => {
     if (albums.length && !albumId) {
-      setAlbumId(albums[0]._id);
+      setAlbumId(albums[0].albumId);
     }
   }, [albums, albumId]);
 
@@ -230,7 +230,7 @@ export default function CaptureMediaPage() {
               size="small"
             >
               {albums.map((a) => (
-                <MenuItem key={a._id} value={a._id}>
+                <MenuItem key={a.albumId} value={a.albumId}>
                   {a.albumName}
                 </MenuItem>
               ))}
