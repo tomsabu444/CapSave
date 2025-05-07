@@ -9,10 +9,12 @@ import AlbumPage from "./pages/AlbumPage";
 import CaptureMediaPage from "./pages/CaptureMediaPage";
 import ProtectedRoute from "./context/ProtectedRoute";
 import MediaGalleryPage from "./pages/MediaGalleryPage";
+import CustomToastContainer from "./components/CustomToastContainer.jsx";
 
 function App() {
   return (
     <Router>
+      <CustomToastContainer />
       <Routes>
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginRegisterPage />} />
