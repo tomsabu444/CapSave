@@ -14,8 +14,20 @@ export default function useDropUpload({ onDrop }) {
     const handleDrop = (e) => {
       e.preventDefault();
       setIsDragging(false);
+
       const files = Array.from(e.dataTransfer.files);
-      onDrop(files);
+
+      // Filter only images/videos
+      const allowed = files.filter(file =>
+        file.type.startsWith('image/') || file.type.startsWith('video/')
+      );
+
+      if (allowed.length === 0) {
+        console.warn('[DropUpload] Ignored unsupported file types');
+        return;
+      }
+
+      onDrop(allowed);
     };
 
     window.addEventListener('dragover', handleDragOver);

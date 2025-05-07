@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
-import useMedia from '../hooks/useMedia';
 import FullScreenView from './FullScreenView';
 
 function MediaPreview({ media, onClick }) {
@@ -48,7 +47,7 @@ export default function MediaGallery({ albumId ,items, loading, error, remove })
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {items.map((m) => (
+      {items.map((m) => ( 
         <div
           key={m.mediaId}
           className="relative bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
