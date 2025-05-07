@@ -29,8 +29,7 @@ function MediaPreview({ media, onClick }) {
   );
 }
 
-export default function MediaGallery({ albumId }) {
-  const { items, loading, error, remove } = useMedia(albumId);
+export default function MediaGallery({ albumId ,items, loading, error, remove }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   if (loading) {

@@ -1,19 +1,42 @@
-import React from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import useAlbums from '../hooks/useAlbums';
-import MediaGallery from '../components/MediaGallery';
+import React from "react";
+import { useParams, useNavigate } from "react-router-dom";
+import useAlbums from "../hooks/useAlbums";
+import useMedia from "../hooks/useMedia";
+import useDropUpload from "../hooks/useDropUpload";
+import MediaGallery from "../components/MediaGallery";
 
 export default function MediaGalleryPage() {
   const { albumId } = useParams();
   const navigate = useNavigate();
   const { albums, loading, error } = useAlbums();
+  const {
+    items,
+    loading: mediaLoading,
+    error: mediaError,
+    upload,
+    remove,
+  } = useMedia(albumId);
+
+  const { isDragging } = useDropUpload({
+    onDrop: async (files) => {
+      for (const file of files) {
+        try {
+          await upload(file);
+        } catch (err) {
+          console.error("Upload failed:", err.message);
+        }
+      }
+    },
+  });
 
   if (loading) {
     return <p className="p-6 text-gray-500 text-center">Loading album…</p>;
   }
 
   if (error) {
-    return <p className="p-6 text-red-500 text-center">Error: {error.message}</p>;
+    return (
+      <p className="p-6 text-red-500 text-center">Error: {error.message}</p>
+    );
   }
 
   const album = albums.find((a) => a.albumId === albumId);
@@ -22,8 +45,8 @@ export default function MediaGalleryPage() {
       <div className="p-6 text-center text-gray-500">
         <p className="text-lg">Album not found.</p>
         <button
-          onClick={() => navigate('/albums')}
-          className="mt-4 px-4 py-2 text-blue-500 hover:text-blue-600 border border-blue-500 hover:border-blue-600 rounded-lg transition-colors duration-200 text-sm font-medium"
+          onClick={() => navigate("/albums")}
+          className="mt-4 px-4 py-2 text-blue-500 hover:text-blue-600 border border-blue-500 rounded-lg text-sm"
         >
           Back to Albums
         </button>
@@ -32,10 +55,20 @@ export default function MediaGalleryPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
+    <div
+      className={`min-h-screen bg-gray-100 p-6 relative transition-all ${
+        isDragging ? "ring-4 ring-blue-400 ring-opacity-50" : ""
+      }`}
+    >
+      {isDragging && (
+        <div className="absolute inset-0 bg-blue-100 bg-opacity-50 z-40 flex items-center justify-center pointer-events-none text-blue-700 font-semibold text-lg">
+          Drop files to upload
+        </div>
+      )}
+
       <button
         onClick={() => navigate(-1)}
-        className="mb-4 text-blue-500 hover:text-blue-600 flex items-center text-sm font-medium transition-colors duration-200"
+        className="mb-4 text-blue-500 hover:text-blue-600 flex items-center text-sm font-medium"
       >
         ← Back
       </button>
@@ -44,11 +77,17 @@ export default function MediaGalleryPage() {
         {album.albumName}
       </h1>
       <p className="text-sm text-gray-500 mb-6">
-        {album.count || 0} items • Created{' '}
+        {album.count || 0} items • Created{" "}
         {new Date(album.createdAt).toLocaleDateString()}
       </p>
 
-      <MediaGallery albumId={albumId} />
+      <MediaGallery
+        albumId={albumId}
+        items={items}
+        loading={mediaLoading}
+        error={mediaError}
+        remove={remove}
+      />
     </div>
   );
 }
