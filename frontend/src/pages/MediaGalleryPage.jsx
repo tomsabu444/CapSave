@@ -4,6 +4,7 @@ import useAlbums from "../hooks/useAlbums";
 import useMedia from "../hooks/useMedia";
 import useDropUpload from "../hooks/useDropUpload";
 import MediaGallery from "../components/MediaGallery";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
 
 export default function MediaGalleryPage() {
   const { albumId } = useParams();
@@ -66,12 +67,18 @@ export default function MediaGalleryPage() {
         </div>
       )}
 
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 text-blue-500 hover:text-blue-600 flex items-center text-sm font-medium"
-      >
-        ← Back
-      </button>
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-blue-500 hover:text-blue-600 flex items-center font-medium"
+        >
+          <ArrowBackIosNewIcon fontSize="small" className="mr-1" />
+          <p className="text-lg"> Back </p>
+        </button>
+        <span className="text-sm text-gray-500">
+          Drag & drop image/video into this album
+        </span>
+      </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
         {album.albumName}
