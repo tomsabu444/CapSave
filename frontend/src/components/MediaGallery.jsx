@@ -57,7 +57,7 @@ export default function MediaGallery({ albumId ,items, loading, error, remove })
             onClick={() => remove(m.mediaId)}
             className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
           >
-            <DeleteIcon fontSize="small" />
+            <DeleteIcon fontSize="medium" />
           </button>
         </div>
       ))}
