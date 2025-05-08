@@ -85,7 +85,7 @@ export default function AlbumPage() {
             onSubmit={async (name) => {
               try {
                 await rename(modal.album.albumId, name);
-                toast.success('Album renamed');
+                toast.info('Album renamed');
                 closeModal();
               } catch (err) {
                 toast.error(`Failed to rename album: ${err.message}`);
