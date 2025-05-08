@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FullScreenView from './FullScreenView';
+import { toast } from 'react-toastify';
 
 function MediaPreview({ media, onClick }) {
   return (
@@ -28,15 +29,17 @@ function MediaPreview({ media, onClick }) {
   );
 }
 
-export default function MediaGallery({ albumId ,items, loading, error, remove }) {
+export default function MediaGallery({ albumId, items, loading, error, remove }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   if (loading) {
     return <p className="p-6 text-gray-500 text-center">Loading media…</p>;
   }
+
   if (error) {
     return <p className="p-6 text-red-500 text-center">Error: {error.message}</p>;
   }
+
   if (!items.length) {
     return (
       <p className="p-6 text-gray-500 text-center">
@@ -47,14 +50,22 @@ export default function MediaGallery({ albumId ,items, loading, error, remove })
 
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {items.map((m) => ( 
+      {items.map((m) => (
         <div
           key={m.mediaId}
           className="relative bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
         >
           <MediaPreview media={m} onClick={() => setSelectedMedia(m)} />
           <button
-            onClick={() => remove(m.mediaId)}
+            onClick={async () => {
+              try {
+                await remove(m.mediaId);
+                toast.success('Media deleted');
+              } catch (err) {
+                console.error(err);
+                toast.error('Failed to delete media');
+              }
+            }}
             className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
           >
             <DeleteIcon fontSize="medium" />

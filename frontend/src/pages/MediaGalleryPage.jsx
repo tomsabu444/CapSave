@@ -5,6 +5,7 @@ import useMedia from "../hooks/useMedia";
 import useDropUpload from "../hooks/useDropUpload";
 import MediaGallery from "../components/MediaGallery";
 import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { toast } from "react-toastify";
 
 export default function MediaGalleryPage() {
   const { albumId } = useParams();
@@ -23,8 +24,10 @@ export default function MediaGalleryPage() {
       for (const file of files) {
         try {
           await upload(file);
+          toast.success(`Uploaded: ${file.name}`);
         } catch (err) {
           console.error("Upload failed:", err.message);
+          toast.error(`Failed to upload: ${file.name}`);
         }
       }
     },
@@ -75,7 +78,7 @@ export default function MediaGalleryPage() {
           <ArrowBackIosNewIcon fontSize="small" className="mr-1" />
           <p className="text-lg"> Back </p>
         </button>
-        <span className="text-sm text-gray-500">
+        <span className="text-sm text-gray-500">  
           Drag & drop image/video into this album
         </span>
       </div>
