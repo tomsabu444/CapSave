@@ -54,7 +54,8 @@ router.post(
 
 /**
  * GET /api/v1/media/:albumId
- * Returns media items with signed URLs
+ * Returns media items with signed URLs and createdAt
+ * Fails the request if any media item can't be signed
  */
 router.get('/:albumId', async (req, res) => {
   try {
@@ -68,34 +69,31 @@ router.get('/:albumId', async (req, res) => {
 
     const items = await Media.find({ userId, albumId })
       .sort('-createdAt')
-      .select('_id mediaType mediaUrl');
+      .select('_id mediaType mediaUrl createdAt');
 
-    const sanitizedItems = await Promise.all(
-      items.map(async (item) => {
-        try {
-          const signedUrl = await getSignedUrlFromS3(item.mediaUrl);
-          return {
-            mediaId: item._id.toString(),
-            mediaType: item.mediaType,
-            mediaUrl: signedUrl,
-          };
-        } catch (err) {
-          console.error('Failed to sign media URL:', err.message);
-          return {
-            mediaId: item._id.toString(),
-            mediaType: item.mediaType,
-            mediaUrl: item.mediaUrl,
-          };
-        }
-      })
-    );
+    const sanitizedItems = [];
+
+    for (const item of items) {
+      const signedUrl = await getSignedUrlFromS3(item.mediaUrl);
+      if (!signedUrl) {
+        throw new Error(`Could not generate signed URL for mediaId=${item._id}`);
+      }
+
+      sanitizedItems.push({
+        mediaId: item._id.toString(),
+        mediaType: item.mediaType,
+        mediaUrl: signedUrl,
+        createdAt: item.createdAt,
+      });
+    }
 
     res.json(sanitizedItems);
   } catch (err) {
     console.error('Get media error:', err);
-    res.status(500).json({ error: 'Failed to fetch media' });
+    res.status(500).json({ error: 'Failed to fetch media (signing error)', details: err.message });
   }
 });
+
 
 /**
  * DELETE /api/v1/media/:mediaId
