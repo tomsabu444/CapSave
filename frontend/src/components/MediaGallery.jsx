@@ -63,7 +63,7 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
                 toast.success('Media deleted');
               } catch (err) {
                 console.error(err);
-                toast.error('Failed to delete media' + err);
+                toast.error(`Failed to delete media: ${err.message}`);
               }
             }}
             className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"

@@ -69,7 +69,7 @@ export default function AlbumPage() {
                 toast.success('Album created');
                 closeModal();
               } catch (err) {
-                toast.error('Failed to create album'+ err);
+                toast.error(`Failed to create album: ${err.message}`);
               }
             }}
           />
@@ -88,7 +88,7 @@ export default function AlbumPage() {
                 toast.success('Album renamed');
                 closeModal();
               } catch (err) {
-                toast.error('Failed to rename album' , err);
+                toast.error(`Failed to rename album: ${err.message}`);
               }
             }}
           />
@@ -119,7 +119,7 @@ export default function AlbumPage() {
                     toast.success('Album deleted');
                     closeModal();
                   } catch (err) {
-                    toast.error('Failed to delete album'+ err);
+                    toast.error(`Failed to delete album: ${err.message}`);
                   }
                 }}
                 className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm"
