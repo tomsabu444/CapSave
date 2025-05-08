@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import useAlbums from '../hooks/useAlbums';
 import useMedia from '../hooks/useMedia';
+import { toast } from 'react-toastify';
 
 export default function MediaUploadModal({ onClose }) {
   const { albums } = useAlbums();
@@ -21,8 +22,10 @@ export default function MediaUploadModal({ onClose }) {
     setSubmitting(true);
     try {
       await upload(file);
+      toast.success('Media uploaded successfully');
       onClose();
     } catch {
+      toast.error('Upload failed');
       setError('Upload failed');
     } finally {
       setSubmitting(false);
