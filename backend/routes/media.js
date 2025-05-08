@@ -19,7 +19,7 @@ router.use(verifyFirebaseToken);
 router.post(
   '/',
   uploadMediaToS3.single('mediaFile'),
-  async (req, res, next) => {
+  async (req, res) => {
     try {
       const { albumId } = req.body;
       const file = req.file;
@@ -44,6 +44,7 @@ router.post(
         mediaId: media._id.toString(),
         mediaType: media.mediaType,
         mediaUrl: signedUrl,
+        createdAt: media.createdAt,
       });
     } catch (err) {
       console.error('Upload error:', err);
@@ -51,6 +52,7 @@ router.post(
     }
   }
 );
+
 
 /**
  * GET /api/v1/media/:albumId
