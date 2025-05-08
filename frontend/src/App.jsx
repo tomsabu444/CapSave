@@ -4,7 +4,7 @@ import Layout from "./components/Layout";
 
 import LandingPage from "./pages/LandingPage";
 import LoginRegisterPage from "./auth/LoginRegisterPage";
-import HomePage from "./pages/HomePage";
+// import HomePage from "./pages/HomePage";
 import AlbumPage from "./pages/AlbumPage";
 import CaptureMediaPage from "./pages/CaptureMediaPage";
 import ProtectedRoute from "./context/ProtectedRoute";
@@ -21,8 +21,8 @@ function App() {
         {/* Pages with layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
-            <Route path="/" element={<HomePage />} />
-            <Route path="/albums" element={<AlbumPage />} />
+            {/* <Route path="/" element={<HomePage />} /> */}
+            <Route path="/" element={<AlbumPage />} />
             <Route path="/albums/:albumId" element={<MediaGalleryPage />} />
             <Route path="/capture" element={<CaptureMediaPage />} />
           </Route>

@@ -46,10 +46,10 @@ const Sidebar = forwardRef((props, ref) => {
 
         {/* 📋 Menu */}
         <nav className="flex-1 px-4 py-6 space-y-2">
-          <SidebarItem to="/" icon={<HomeIcon />} label="Home" isActive={isActive("/")}/>
-          <SidebarItem to="/capture" icon={<CameraAltIcon />} label="Capture" isActive={isActive("/capture")} />
+          {/* <SidebarItem to="/" icon={<HomeIcon />} label="Home" isActive={isActive("/")}/> */}
+          <SidebarItem to="/" icon={<PhotoLibraryIcon />} label="Albums" isActive={isActive("/")} />
           <hr className="my-3 border-gray-300" />
-          <SidebarItem to="/albums" icon={<PhotoLibraryIcon />} label="Albums" isActive={isActive("/album")} />
+          <SidebarItem to="/capture" icon={<CameraAltIcon />} label="Capture" isActive={isActive("/capture")} />
           {/* <SidebarItem to="/favorites" icon={<FavoriteIcon />} label="Favorites" isActive={isActive("/favorites")} /> */}
         </nav>
       </aside>

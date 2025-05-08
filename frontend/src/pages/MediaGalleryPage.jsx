@@ -49,7 +49,7 @@ export default function MediaGalleryPage() {
       <div className="p-6 text-center text-gray-500">
         <p className="text-lg">Album not found.</p>
         <button
-          onClick={() => navigate("/albums")}
+          onClick={() => navigate("/")}
           className="mt-4 px-4 py-2 text-blue-500 hover:text-blue-600 border border-blue-500 rounded-lg text-sm"
         >
           Back to Albums
