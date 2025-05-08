@@ -22,7 +22,7 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
             <Route path="/" element={<HomePage />} />
-            <Route path="/album" element={<AlbumPage />} />
+            <Route path="/albums" element={<AlbumPage />} />
             <Route path="/albums/:albumId" element={<MediaGalleryPage />} />
             <Route path="/capture" element={<CaptureMediaPage />} />
           </Route>
