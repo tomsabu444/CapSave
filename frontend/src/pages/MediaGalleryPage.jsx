@@ -37,11 +37,11 @@ export default function MediaGalleryPage() {
     return <p className="p-6 text-gray-500 text-center">Loading album…</p>;
   }
 
-  if (error) {
-    return (
-      <p className="p-6 text-red-500 text-center">Error: {error.message}</p>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <p className="p-6 text-red-500 text-center">Error: {error.message}</p>
+  //   );
+  // }
 
   const album = albums.find((a) => a.albumId === albumId);
   if (!album) {

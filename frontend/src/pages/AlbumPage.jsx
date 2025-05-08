@@ -1,19 +1,17 @@
-// src/pages/AlbumPage.jsx
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useAlbums from '../hooks/useAlbums';
 import AlbumCard from '../components/albums/AlbumCard';
 import AlbumForm from '../components/albums/AlbumForm';
 import ModalOverlay from '../components/ModalOverlay';
+import { toast } from 'react-toastify';
 
 export default function AlbumPage() {
   const navigate = useNavigate();
   const { albums, loading, error, add, rename, remove } = useAlbums();
-
   const [modal, setModal] = useState({ type: null, album: null });
 
   const closeModal = () => setModal({ type: null, album: null });
-
   const totalItems = albums.reduce((sum, a) => sum + (a.count || 0), 0);
 
   return (
@@ -35,7 +33,7 @@ export default function AlbumPage() {
       </div>
 
       {/* Error */}
-      {error && <p className="text-red-500 mb-6 text-sm">Error: {error.message}</p>}
+      {/* {error && <p className="text-red-500 mb-6 text-sm">Error: {error.message}</p>} */}
 
       {/* Content */}
       {loading ? (
@@ -66,12 +64,18 @@ export default function AlbumPage() {
             initialName=""
             onCancel={closeModal}
             onSubmit={async (name) => {
-              await add(name);
-              closeModal();
+              try {
+                await add(name);
+                toast.success('Album created');
+                closeModal();
+              } catch (err) {
+                toast.error('Failed to create album'+ err);
+              }
             }}
           />
         </ModalOverlay>
       )}
+
       {modal.type === 'rename' && (
         <ModalOverlay onClose={closeModal}>
           <AlbumForm
@@ -79,12 +83,18 @@ export default function AlbumPage() {
             initialName={modal.album?.albumName || ''}
             onCancel={closeModal}
             onSubmit={async (name) => {
-              await rename(modal.album.albumId, name);
-              closeModal();
+              try {
+                await rename(modal.album.albumId, name);
+                toast.success('Album renamed');
+                closeModal();
+              } catch (err) {
+                toast.error('Failed to rename album' , err);
+              }
             }}
           />
         </ModalOverlay>
       )}
+
       {modal.type === 'delete' && (
         <ModalOverlay onClose={closeModal}>
           <div className="bg-white p-6 rounded-xl w-80 shadow-2xl">
@@ -104,8 +114,13 @@ export default function AlbumPage() {
               </button>
               <button
                 onClick={async () => {
-                  await remove(modal.album.albumId);
-                  closeModal();
+                  try {
+                    await remove(modal.album.albumId);
+                    toast.success('Album deleted');
+                    closeModal();
+                  } catch (err) {
+                    toast.error('Failed to delete album'+ err);
+                  }
                 }}
                 className="px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-lg text-sm"
               >

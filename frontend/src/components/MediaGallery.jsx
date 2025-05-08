@@ -36,9 +36,9 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
     return <p className="p-6 text-gray-500 text-center">Loading media…</p>;
   }
 
-  if (error) {
-    return <p className="p-6 text-red-500 text-center">Error: {error.message}</p>;
-  }
+  // if (error) {
+  //   return <p className="p-6 text-red-500 text-center">Error: {error.message}</p>;
+  // }
 
   if (!items.length) {
     return (
@@ -63,7 +63,7 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
                 toast.success('Media deleted');
               } catch (err) {
                 console.error(err);
-                toast.error('Failed to delete media');
+                toast.error('Failed to delete media' + err);
               }
             }}
             className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
