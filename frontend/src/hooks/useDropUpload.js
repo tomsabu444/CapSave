@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { validateFile } from '../utils/validateFile';
+import { toast } from 'react-toastify';
 
 export default function useDropUpload({ onDrop }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,18 +18,29 @@ export default function useDropUpload({ onDrop }) {
       setIsDragging(false);
 
       const files = Array.from(e.dataTransfer.files);
+      const validFiles = [];
+      const rejectedFiles = [];
 
-      const validFiles = files.filter((file) => {
-        const { valid } = validateFile(file);
-        return valid;
+      files.forEach((file) => {
+        const { valid, reason } = validateFile(file);
+        if (valid) {
+          validFiles.push(file);
+        } else {
+          rejectedFiles.push({ name: file.name, reason });
+        }
       });
 
-      if (validFiles.length === 0) {
-        console.warn('[DropUpload] All dropped files were invalid');
-        return;
+      if (rejectedFiles.length > 0) {
+        const names = rejectedFiles.map(f => `"${f.name}"`).join(', ');
+        toast.error(
+          `Rejected ${rejectedFiles.length} file(s): ${names}`,
+          { autoClose: 4000, pauseOnHover: true }
+        );
       }
 
-      onDrop(validFiles);
+      if (validFiles.length > 0) {
+        onDrop(validFiles);
+      }
     };
 
     window.addEventListener('dragover', handleDragOver);
