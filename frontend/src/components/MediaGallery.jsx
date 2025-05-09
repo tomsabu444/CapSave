@@ -29,12 +29,21 @@ function MediaPreview({ media, onClick }) {
   );
 }
 
-function formatDateKey(dateString, level) {
+function formatMonthKey(dateString) {
   const date = new Date(dateString);
-  if (level === 'month') {
-    return new Intl.DateTimeFormat('en-US', { month: 'long', year: 'numeric' }).format(date);
-  }
-  return new Intl.DateTimeFormat('en-US', { day: 'numeric', month: 'long', year: 'numeric' }).format(date);
+  return new Intl.DateTimeFormat('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date); // e.g., "April 2025"
+}
+
+function formatDayKey(dateString) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date); // e.g., "22 April 2025"
 }
 
 export default function MediaGallery({ albumId, items, loading, error, remove }) {
@@ -52,11 +61,11 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
     );
   }
 
-  // ✅ Group by month > day
+  // ✅ Group by Month > Day
   const grouped = {};
   items.forEach((media) => {
-    const monthKey = formatDateKey(media.createdAt, 'month');
-    const dayKey = formatDateKey(media.createdAt, 'day');
+    const monthKey = formatMonthKey(media.createdAt);
+    const dayKey = formatDayKey(media.createdAt);
 
     if (!grouped[monthKey]) grouped[monthKey] = {};
     if (!grouped[monthKey][dayKey]) grouped[monthKey][dayKey] = [];
@@ -68,11 +77,11 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
     <div className="space-y-10">
       {Object.entries(grouped).map(([month, days]) => (
         <div key={month}>
-          <h1 className="text-2xl font-bold text-gray-800 mb-4">{month}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{month}</h1>
 
           {Object.entries(days).map(([day, mediaList]) => (
             <div key={day} className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-600 mb-2">{day}</h2>
+              <h2 className="text-lg font-semibold text-gray-700 mb-2">{day}</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {mediaList.map((m) => (
                   <div
