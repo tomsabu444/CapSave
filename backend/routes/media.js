@@ -1,10 +1,11 @@
 const express = require('express');
 const Media = require('../models/Media');
-const Album = require('../models/Album'); // ✅ Needed to check if album exists
+const Album = require('../models/Album');
 const uploadMediaToS3 = require('../utils/uploadMediaToS3');
 const { deleteMediaFromS3 } = require('../utils/deleteMediaFromS3');
 const getSignedUrlFromS3 = require('../utils/getSignedUrlFromS3');
 const verifyFirebaseToken = require('../middlewares/authMiddleware');
+const validateUploadFile = require('../middlewares/validateUploadFile');
 
 const router = express.Router();
 
@@ -18,6 +19,7 @@ router.use(verifyFirebaseToken);
  */
 router.post(
   '/',
+  validateUploadFile,   
   uploadMediaToS3.single('mediaFile'),
   async (req, res) => {
     try {
