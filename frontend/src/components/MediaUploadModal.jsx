@@ -39,7 +39,7 @@ export default function MediaUploadModal({ onClose }) {
   const handleUpload = async () => {
     if (!file) return setError('Select a photo or video');
     if (!albumId) return setError('Choose an album');
-    if (!validateAndSetFile(file)) return;
+    // if (!validateAndSetFile(file)) return;
 
     setSubmitting(true);
     try {

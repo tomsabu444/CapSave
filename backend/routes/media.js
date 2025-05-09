@@ -27,7 +27,6 @@ router.post(
       const file = req.file;
       const userId = req.user.uid;
 
-      if (!file) return res.status(400).json({ error: 'mediaFile is required' });
       if (!albumId) return res.status(400).json({ error: 'albumId is required' });
 
       const albumExists = await Album.exists({ _id: albumId, userId });
