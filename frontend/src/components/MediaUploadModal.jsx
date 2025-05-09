@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import useAlbums from '../hooks/useAlbums';
 import useMedia from '../hooks/useMedia';
 import { toast } from 'react-toastify';
@@ -10,14 +10,26 @@ export default function MediaUploadModal({ onClose }) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { upload } = useMedia(albumId);
+  const fileInputRef = useRef(null); // ✅ ref for file input
 
   useEffect(() => {
     if (albums.length) setAlbumId(albums[0].albumId);
   }, [albums]);
 
+  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
   const handleUpload = async () => {
     if (!file) return setError('Select a photo or video');
     if (!albumId) return setError('Choose an album');
+    if (file.size > MAX_FILE_SIZE) {
+      const msg = 'File size must be under 50MB';
+      setError(msg);
+      toast.error(msg);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = null; // ✅ reset
+      return;
+    }
+
     setError('');
     setSubmitting(true);
     try {
@@ -29,6 +41,20 @@ export default function MediaUploadModal({ onClose }) {
       setError('Upload failed');
     } finally {
       setSubmitting(false);
+    }
+  };
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files[0];
+    if (selected && selected.size > MAX_FILE_SIZE) {
+      const msg = 'Selected file exceeds 50MB';
+      setError(msg);
+      toast.error(msg);
+      setFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = null; // ✅ reset
+    } else {
+      setError('');
+      setFile(selected);
     }
   };
 
@@ -47,8 +73,9 @@ export default function MediaUploadModal({ onClose }) {
 
         <input
           type="file"
+          ref={fileInputRef} // ✅ attach ref
           accept="image/*,video/*"
-          onChange={(e) => setFile(e.target.files[0])}
+          onChange={handleFileChange}
           className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-200 text-sm"
         />
 
