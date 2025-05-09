@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import DeleteIcon from '@mui/icons-material/Delete';
 import FullScreenView from './FullScreenView';
+import { toast } from 'react-toastify';
 
 function MediaPreview({ media, onClick }) {
   return (
@@ -28,15 +29,30 @@ function MediaPreview({ media, onClick }) {
   );
 }
 
-export default function MediaGallery({ albumId ,items, loading, error, remove }) {
+function formatMonthKey(dateString) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    month: 'long',
+    year: 'numeric',
+  }).format(date); // e.g., "April 2025"
+}
+
+function formatDayKey(dateString) {
+  const date = new Date(dateString);
+  return new Intl.DateTimeFormat('en-GB', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  }).format(date); // e.g., "22 April 2025"
+}
+
+export default function MediaGallery({ albumId, items, loading, error, remove }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   if (loading) {
     return <p className="p-6 text-gray-500 text-center">Loading media…</p>;
   }
-  if (error) {
-    return <p className="p-6 text-red-500 text-center">Error: {error.message}</p>;
-  }
+
   if (!items.length) {
     return (
       <p className="p-6 text-gray-500 text-center">
@@ -45,22 +61,56 @@ export default function MediaGallery({ albumId ,items, loading, error, remove })
     );
   }
 
+  // ✅ Group by Month > Day
+  const grouped = {};
+  items.forEach((media) => {
+    const monthKey = formatMonthKey(media.createdAt);
+    const dayKey = formatDayKey(media.createdAt);
+
+    if (!grouped[monthKey]) grouped[monthKey] = {};
+    if (!grouped[monthKey][dayKey]) grouped[monthKey][dayKey] = [];
+
+    grouped[monthKey][dayKey].push(media);
+  });
+
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
-      {items.map((m) => ( 
-        <div
-          key={m.mediaId}
-          className="relative bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
-        >
-          <MediaPreview media={m} onClick={() => setSelectedMedia(m)} />
-          <button
-            onClick={() => remove(m.mediaId)}
-            className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
-          >
-            <DeleteIcon fontSize="small" />
-          </button>
+    <div className="space-y-10">
+      {Object.entries(grouped).map(([month, days]) => (
+        <div key={month}>
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">{month}</h1>
+
+          {Object.entries(days).map(([day, mediaList]) => (
+            <div key={day} className="mb-6">
+              <h2 className="text-lg font-semibold text-gray-700 mb-2">{day}</h2>
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                {mediaList.map((m) => (
+                  <div
+                    key={m.mediaId}
+                    className="relative bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
+                  >
+                    <MediaPreview media={m} onClick={() => setSelectedMedia(m)} />
+                    <button
+                      onClick={async () => {
+                        try {
+                          await remove(m.mediaId);
+                          toast.success('Media deleted');
+                        } catch (err) {
+                          console.error(err);
+                          toast.error(`Failed to delete media: ${err.message}`);
+                        }
+                      }}
+                      className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
+                    >
+                      <DeleteIcon fontSize="medium" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       ))}
+
       {selectedMedia && (
         <FullScreenView
           media={selectedMedia}

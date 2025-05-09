@@ -4,6 +4,8 @@ import useAlbums from "../hooks/useAlbums";
 import useMedia from "../hooks/useMedia";
 import useDropUpload from "../hooks/useDropUpload";
 import MediaGallery from "../components/MediaGallery";
+import ArrowBackIosNewIcon from "@mui/icons-material/ArrowBackIosNew";
+import { toast } from "react-toastify";
 
 export default function MediaGalleryPage() {
   const { albumId } = useParams();
@@ -22,8 +24,10 @@ export default function MediaGalleryPage() {
       for (const file of files) {
         try {
           await upload(file);
+          toast.success(`Uploaded: ${file.name}`);
         } catch (err) {
           console.error("Upload failed:", err.message);
+          toast.error(`Failed to upload: ${file.name}`);
         }
       }
     },
@@ -33,11 +37,11 @@ export default function MediaGalleryPage() {
     return <p className="p-6 text-gray-500 text-center">Loading album…</p>;
   }
 
-  if (error) {
-    return (
-      <p className="p-6 text-red-500 text-center">Error: {error.message}</p>
-    );
-  }
+  // if (error) {
+  //   return (
+  //     <p className="p-6 text-red-500 text-center">Error: {error.message}</p>
+  //   );
+  // }
 
   const album = albums.find((a) => a.albumId === albumId);
   if (!album) {
@@ -45,7 +49,7 @@ export default function MediaGalleryPage() {
       <div className="p-6 text-center text-gray-500">
         <p className="text-lg">Album not found.</p>
         <button
-          onClick={() => navigate("/albums")}
+          onClick={() => navigate("/")}
           className="mt-4 px-4 py-2 text-blue-500 hover:text-blue-600 border border-blue-500 rounded-lg text-sm"
         >
           Back to Albums
@@ -66,12 +70,18 @@ export default function MediaGalleryPage() {
         </div>
       )}
 
-      <button
-        onClick={() => navigate(-1)}
-        className="mb-4 text-blue-500 hover:text-blue-600 flex items-center text-sm font-medium"
-      >
-        ← Back
-      </button>
+      <div className="flex justify-between items-center mb-4">
+        <button
+          onClick={() => navigate(-1)}
+          className="text-blue-500 hover:text-blue-600 flex items-center font-medium"
+        >
+          <ArrowBackIosNewIcon fontSize="small" className="mr-1" />
+          <p className="text-lg"> Back </p>
+        </button>
+        <span className="text-sm text-gray-500">  
+          Drag & drop image/video into this album
+        </span>
+      </div>
 
       <h1 className="text-3xl font-bold text-gray-900 mb-2 tracking-tight">
         {album.albumName}

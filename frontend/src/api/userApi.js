@@ -7,7 +7,7 @@ import { API_BASE_URL } from "../config/apiconfig";
 export const saveUserToDatabase = async () => {
   const token = await getFirebaseToken();
 
-  const response = await fetch(`${API_BASE_URL}/api/v1/users`, {
+  const response = await fetch(`${API_BASE_URL}/v1/users`, {
     method: "POST",
     headers: {
       Authorization: `Bearer ${token}`,

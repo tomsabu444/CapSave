@@ -17,9 +17,9 @@ app.use(express.json());
 
 //! Routes
 app.use('/', require('./routes/health'));
-app.use('/api/v1/users', require('./routes/users')); // users route
-app.use('/api/v1/albums', require('./routes/albums')); // albums route
-app.use('/api/v1/media', require('./routes/media')); // media route
+app.use('/v1/users', require('./routes/users')); // users route
+app.use('/v1/albums', require('./routes/albums')); // albums route
+app.use('/v1/media', require('./routes/media')); // media route
 // Start server
 app.listen(PORT, () => {
   console.log(`✅ CapSave backend is running on port http://localhost:${PORT}`);

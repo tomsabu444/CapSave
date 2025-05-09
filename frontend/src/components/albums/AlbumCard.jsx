@@ -1,8 +1,13 @@
-import React from 'react';
-import EditIcon from '@mui/icons-material/Edit';
-import DeleteIcon from '@mui/icons-material/Delete';
+import React from "react";
+import EditIcon from "@mui/icons-material/Edit";
+import DeleteIcon from "@mui/icons-material/Delete";
 
-export default function AlbumCard({ album, onOpen, onOpenRename, onOpenDelete }) {
+export default function AlbumCard({
+  album,
+  onOpen,
+  onOpenRename,
+  onOpenDelete,
+}) {
   return (
     <div
       className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
@@ -11,11 +16,22 @@ export default function AlbumCard({ album, onOpen, onOpenRename, onOpenDelete })
       {/* Cover */}
       <div className="w-full h-52 bg-gray-200">
         {album.coverUrl ? (
-          <img
-            src={album.coverUrl}
-            alt={album.albumName}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          />
+          album.coverType === "video" ? (
+            <video
+              src={album.coverUrl}
+              className="w-full h-full object-cover"
+              muted
+              loop
+              autoPlay
+              playsInline
+            />
+          ) : (
+            <img
+              src={album.coverUrl}
+              alt={album.albumName}
+              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+            />
+          )
         ) : (
           <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
             No Images
