@@ -17,19 +17,30 @@ export default function MediaUploadModal({ onClose }) {
     if (albums.length) setAlbumId(albums[0].albumId);
   }, [albums]);
 
-  const handleUpload = async () => {
-    if (!file) return setError('Select a photo or video');
-    if (!albumId) return setError('Choose an album');
-
-    const { valid, reason } = validateFile(file);
+  const validateAndSetFile = (selectedFile) => {
+    const { valid, reason } = validateFile(selectedFile);
     if (!valid) {
       setError(reason);
       setFile(null);
       if (fileInputRef.current) fileInputRef.current.value = null;
-      return;
+      return false;
     }
 
     setError('');
+    setFile(selectedFile);
+    return true;
+  };
+
+  const handleFileChange = (e) => {
+    const selected = e.target.files[0];
+    validateAndSetFile(selected);
+  };
+
+  const handleUpload = async () => {
+    if (!file) return setError('Select a photo or video');
+    if (!albumId) return setError('Choose an album');
+    if (!validateAndSetFile(file)) return;
+
     setSubmitting(true);
     try {
       await upload(file);
@@ -41,20 +52,6 @@ export default function MediaUploadModal({ onClose }) {
     } finally {
       setSubmitting(false);
     }
-  };
-
-  const handleFileChange = (e) => {
-    const selected = e.target.files[0];
-    const { valid, reason } = validateFile(selected);
-    if (!valid) {
-      setError(reason);
-      setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = null;
-      return;
-    }
-
-    setError('');
-    setFile(selected);
   };
 
   return (
