@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import useAlbums from '../hooks/useAlbums';
 import useMedia from '../hooks/useMedia';
 import { toast } from 'react-toastify';
+import { validateFile, ALLOWED_TYPES } from '../utils/validateFile';
 
 export default function MediaUploadModal({ onClose }) {
   const { albums } = useAlbums();
@@ -10,23 +11,21 @@ export default function MediaUploadModal({ onClose }) {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const { upload } = useMedia(albumId);
-  const fileInputRef = useRef(null); // ✅ ref for file input
+  const fileInputRef = useRef(null);
 
   useEffect(() => {
     if (albums.length) setAlbumId(albums[0].albumId);
   }, [albums]);
 
-  const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
-
   const handleUpload = async () => {
     if (!file) return setError('Select a photo or video');
     if (!albumId) return setError('Choose an album');
-    if (file.size > MAX_FILE_SIZE) {
-      const msg = 'File size must be under 50MB';
-      setError(msg);
-      toast.error(msg);
+
+    const { valid, reason } = validateFile(file);
+    if (!valid) {
+      setError(reason);
       setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = null; // ✅ reset
+      if (fileInputRef.current) fileInputRef.current.value = null;
       return;
     }
 
@@ -46,25 +45,25 @@ export default function MediaUploadModal({ onClose }) {
 
   const handleFileChange = (e) => {
     const selected = e.target.files[0];
-    if (selected && selected.size > MAX_FILE_SIZE) {
-      const msg = 'Selected file exceeds 50MB';
-      setError(msg);
-      toast.error(msg);
+    const { valid, reason } = validateFile(selected);
+    if (!valid) {
+      setError(reason);
       setFile(null);
-      if (fileInputRef.current) fileInputRef.current.value = null; // ✅ reset
-    } else {
-      setError('');
-      setFile(selected);
+      if (fileInputRef.current) fileInputRef.current.value = null;
+      return;
     }
+
+    setError('');
+    setFile(selected);
   };
 
   return (
     <div
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 backdrop-blur-sm sm:px-6 px-4"
       onClick={onClose}
     >
       <div
-        className="bg-white p-6 rounded-xl w-80 shadow-2xl"
+        className="bg-white p-6 rounded-xl shadow-2xl w-full max-w-lg"
         onClick={(e) => e.stopPropagation()}
       >
         <h2 className="text-xl font-semibold text-gray-900 mb-4">
@@ -73,11 +72,19 @@ export default function MediaUploadModal({ onClose }) {
 
         <input
           type="file"
-          ref={fileInputRef} // ✅ attach ref
+          ref={fileInputRef}
           accept="image/*,video/*"
           onChange={handleFileChange}
           className="w-full px-3 py-2 bg-gray-50 text-gray-900 rounded-lg border border-gray-300 focus:outline-none focus:border-blue-500 transition-colors duration-200 text-sm"
         />
+
+        {error ? (
+          <p className="text-red-500 text-sm mt-2">{error}</p>
+        ) : (
+          <p className="text-gray-400 text-xs mt-2">
+            Max size: 50MB. Allowed types: {ALLOWED_TYPES.map(t => t.split('/')[1]).join(', ')}.
+          </p>
+        )}
 
         <select
           value={albumId}
@@ -90,8 +97,6 @@ export default function MediaUploadModal({ onClose }) {
             </option>
           ))}
         </select>
-
-        {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
 
         <div className="mt-6 flex justify-end space-x-2">
           <button

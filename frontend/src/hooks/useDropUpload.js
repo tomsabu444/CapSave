@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { validateFile } from '../utils/validateFile';
 
 export default function useDropUpload({ onDrop }) {
   const [isDragging, setIsDragging] = useState(false);
@@ -17,17 +18,17 @@ export default function useDropUpload({ onDrop }) {
 
       const files = Array.from(e.dataTransfer.files);
 
-      // Filter only images/videos
-      const allowed = files.filter(file =>
-        file.type.startsWith('image/') || file.type.startsWith('video/')
-      );
+      const validFiles = files.filter((file) => {
+        const { valid } = validateFile(file);
+        return valid;
+      });
 
-      if (allowed.length === 0) {
-        console.warn('[DropUpload] Ignored unsupported file types');
+      if (validFiles.length === 0) {
+        console.warn('[DropUpload] All dropped files were invalid');
         return;
       }
 
-      onDrop(allowed);
+      onDrop(validFiles);
     };
 
     window.addEventListener('dragover', handleDragOver);
