@@ -3,7 +3,7 @@ import { API_BASE_URL } from '../config/apiconfig';
 import { getFirebaseToken } from '../utils/firebaseToken';
 
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1/media`,
+  baseURL: `${API_BASE_URL}/v1/media`,
 });
 
 // attach Firebase token
