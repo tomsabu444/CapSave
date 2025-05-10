@@ -1,16 +1,10 @@
-// src/pages/CaptureMediaPage.jsx
 import React, { useRef, useState, useEffect } from "react";
 import Webcam from "react-webcam";
 import { ReactMediaRecorder } from "react-media-recorder";
 import {
-  Dialog,
-  DialogContent,
   IconButton,
-  MenuItem,
-  Select,
   LinearProgress,
   Tooltip,
-  Button,
   Typography,
 } from "@mui/material";
 import {
@@ -33,22 +27,20 @@ const videoConstraints = {
 export default function CaptureMediaPage() {
   const webcamRef = useRef(null);
   const { albums } = useAlbums();
-  
-  const [devices, setDevices]         = useState([]);
-  const [deviceId, setDeviceId]       = useState(null);
+
+  const [devices, setDevices] = useState([]);
+  const [deviceId, setDeviceId] = useState(null);
   const [capturedPhoto, setCapturedPhoto] = useState(null);
-  const [mediaBlobUrl, setMediaBlobUrl]   = useState(null);
-  const [mediaType, setMediaType]     = useState(null); // "photo" | "video"
+  const [mediaBlobUrl, setMediaBlobUrl] = useState(null);
+  const [mediaType, setMediaType] = useState(null); // "photo" | "video"
   const [openPreview, setOpenPreview] = useState(false);
-  const [isLoading, setIsLoading]     = useState(false);
-  const [error, setError]             = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState("");
+  const [albumId, setAlbumId] = useState("");
 
-  const [albumId, setAlbumId]         = useState("");
-
-  // load cameras + default album
   useEffect(() => {
     navigator.mediaDevices.enumerateDevices().then((devicesList) => {
-      const videoInputs = devicesList.filter(d => d.kind === "videoinput");
+      const videoInputs = devicesList.filter((d) => d.kind === "videoinput");
       setDevices(videoInputs);
       if (videoInputs[0]) setDeviceId(videoInputs[0].deviceId);
     });
@@ -60,7 +52,10 @@ export default function CaptureMediaPage() {
     }
   }, [albums, albumId]);
 
-  // Capture a photo
+  useEffect(() => {
+    document.body.style.overflow = openPreview ? "hidden" : "";
+  }, [openPreview]);
+
   const capturePhoto = () => {
     const img = webcamRef.current.getScreenshot();
     setCapturedPhoto(img);
@@ -69,7 +64,6 @@ export default function CaptureMediaPage() {
     setError("");
   };
 
-  // Handle Save for both photo & video
   const handleSave = async () => {
     if (!albumId) {
       setError("Please select an album");
@@ -80,17 +74,13 @@ export default function CaptureMediaPage() {
     try {
       let fileBlob;
       if (mediaType === "photo") {
-        // DataURL to Blob
         const res = await fetch(capturedPhoto);
         fileBlob = await res.blob();
       } else {
-        // videoBlobUrl to Blob
         const res = await fetch(mediaBlobUrl);
         fileBlob = await res.blob();
       }
-      // upload to backend
       await mediaApi.upload(fileBlob, albumId);
-      // reset
       setOpenPreview(false);
       setCapturedPhoto(null);
       setMediaBlobUrl(null);
@@ -111,8 +101,7 @@ export default function CaptureMediaPage() {
   };
 
   return (
-    <div className="w-full h-full bg-gray-200 flex flex-col overflow-hidden">
-
+    <div className="w-full h-full bg-gray-200 dark:bg-gray-950 flex flex-col overflow-hidden">
       {/* Camera View */}
       <div className="flex-1 flex justify-center items-center overflow-hidden">
         <Webcam
@@ -128,42 +117,40 @@ export default function CaptureMediaPage() {
       </div>
 
       {/* Control Bar */}
-      <div className="flex-none px-6 py-4 mb-3 bg-gray-200 flex items-center justify-between relative">
-        {/* Camera Selector */}
+      <div className="flex-none px-6 py-4 mb-3 bg-gray-200 dark:bg-gray-950 flex items-center justify-between relative">
         <div className="flex items-center gap-2">
-          <Cameraswitch className="text-gray-700" />
-          <Select
+          <Cameraswitch className="text-gray-700 dark:text-gray-300" />
+          <select
             value={deviceId || ""}
             onChange={(e) => setDeviceId(e.target.value)}
-            size="small"
-            className="bg-white text-black rounded-md shadow-sm w-40"
+            className="text-sm w-40 rounded-md shadow-sm px-3 py-2 bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {devices.map((d, idx) => (
-              <MenuItem key={d.deviceId} value={d.deviceId}>
+              <option key={d.deviceId} value={d.deviceId}>
                 {d.label || `Camera ${idx + 1}`}
-              </MenuItem>
+              </option>
             ))}
-          </Select>
+          </select>
         </div>
 
-        {/* Action Buttons */}
         <div className="absolute left-1/2 transform -translate-x-1/2 flex gap-10">
           {/* Capture Photo */}
           <Tooltip title="Capture Photo">
             <IconButton
+              className="bg-white hover:bg-blue-100 dark:bg-gray-800 dark:hover:bg-blue-900 shadow-xl rounded-full p-4"
               onClick={capturePhoto}
-              className="bg-white hover:bg-blue-100 shadow-xl rounded-full p-4"
             >
-              <PhotoCamera fontSize="large" className="text-blue-600" />
+              <PhotoCamera fontSize="large" className="text-blue-600 dark:text-blue-300" />
             </IconButton>
           </Tooltip>
 
-          {/* Capture Video */}
+          {/* Record Video */}
           <ReactMediaRecorder
             video
             render={({ status, startRecording, stopRecording, mediaBlobUrl: url }) => {
-              // store the blob URL for later
-              useEffect(() => { if (url) setMediaBlobUrl(url); }, [url]);
+              useEffect(() => {
+                if (url) setMediaBlobUrl(url);
+              }, [url]);
 
               return (
                 <Tooltip title={status === "recording" ? "Stop Recording" : "Start Recording"}>
@@ -177,13 +164,13 @@ export default function CaptureMediaPage() {
                         startRecording();
                       }
                     }}
-                    className={`relative shadow-xl rounded-full p-4 ${
+                    className={`relative shadow-xl rounded-full p-4 transition-colors ${
                       status === "recording"
                         ? "bg-red-600 text-white hover:bg-red-700"
-                        : "bg-white hover:bg-green-100 text-green-600"
+                        : "bg-white dark:bg-gray-800 hover:bg-green-100 dark:hover:bg-green-900 text-green-600"
                     }`}
                   >
-                    <Videocam fontSize="large" />
+                    <Videocam fontSize="large" className="text-blue-600 dark:text-blue-300" />
                     {status === "recording" && (
                       <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
                     )}
@@ -195,72 +182,71 @@ export default function CaptureMediaPage() {
         </div>
       </div>
 
-      {/* Preview & Save Dialog */}
-      <Dialog
-        open={openPreview}
-        onClose={handleRetake}
-        maxWidth="sm"
-        fullWidth
-        PaperProps={{ className: "bg-gray-900 text-white rounded-lg" }}
-      >
-        <DialogContent className="flex flex-col items-center justify-center gap-4">
-          {mediaType === "photo" ? (
-            <img
-              src={capturedPhoto}
-              alt="Preview"
-              className="w-full rounded-lg shadow"
-            />
-          ) : (
-            <video
-              controls
-              autoPlay
-              src={mediaBlobUrl}
-              className="w-full rounded-lg shadow"
-            />
-          )}
+      {/* Custom Preview Modal */}
+      {openPreview && (
+        <div
+          className="fixed inset-0 bg-black/50 dark:bg-black/70 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-6"
+          onClick={handleRetake}
+        >
+          <div
+            className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white w-full max-w-lg rounded-xl p-6 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {mediaType === "photo" ? (
+              <img src={capturedPhoto} alt="Preview" className="w-full rounded-lg shadow mb-4" />
+            ) : (
+              <video
+                controls
+                autoPlay
+                src={mediaBlobUrl}
+                className="w-full rounded-lg shadow mb-4"
+              />
+            )}
 
-          {/* Album selector */}
-          <div className="w-full mt-2">
-            <Typography>Select Album to Save:</Typography>
-            <Select
-              value={albumId}
-              onChange={(e) => setAlbumId(e.target.value)}
-              fullWidth
-              className="bg-white text-black rounded mt-1"
-              size="small"
-            >
-              {albums.map((a) => (
-                <MenuItem key={a.albumId} value={a.albumId}>
-                  {a.albumName}
-                </MenuItem>
-              ))}
-            </Select>
-          </div>
-
-          {error && <Typography color="error">{error}</Typography>}
-
-          <div className="flex justify-center gap-8 mt-4">
-            <Tooltip title="Retake">
-              <IconButton
-                onClick={handleRetake}
-                className="bg-red-600 hover:bg-red-700 text-white p-3"
+            <div className="w-full mb-4">
+              <label htmlFor="album" className="block text-sm font-medium mb-1">
+                Select Album to Save:
+              </label>
+              <select
+                id="album"
+                value={albumId}
+                onChange={(e) => setAlbumId(e.target.value)}
+                className="w-full text-sm rounded-md px-3 py-2 bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
-                <Replay />
-              </IconButton>
-            </Tooltip>
-            <Tooltip title="Save">
-              <IconButton
-                onClick={handleSave}
-                disabled={isLoading}
-                className="bg-green-600 hover:bg-green-700 text-white p-3"
-              >
-                <Save />
-              </IconButton>
-            </Tooltip>
+                {albums.map((a) => (
+                  <option key={a.albumId} value={a.albumId}>
+                    {a.albumName}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {error && <Typography color="error" className="mb-2">{error}</Typography>}
+
+            <div className="flex justify-center gap-6">
+              <Tooltip title="Retake">
+                <IconButton
+                  onClick={handleRetake}
+                  className="bg-red-600 hover:bg-red-700 text-white p-3"
+                >
+                  <Replay className="text-blue-400"/>
+                </IconButton>
+              </Tooltip>
+              <Tooltip title="Save">
+                <IconButton
+                  onClick={handleSave}
+                  disabled={isLoading}
+                  className="bg-green-600 hover:bg-green-700 text-white p-3 disabled:opacity-50"
+                >
+                  <Save className="text-green-600" />
+                </IconButton>
+              </Tooltip>
+            </div>
+
+            {isLoading && <LinearProgress className="w-full mt-4" />}
           </div>
-          {isLoading && <LinearProgress className="w-full mt-2" />}
-        </DialogContent>
-      </Dialog>
+        </div>
+      )}
     </div>
   );
 }

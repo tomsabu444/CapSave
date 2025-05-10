@@ -10,11 +10,11 @@ export default function AlbumCard({
 }) {
   return (
     <div
-      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
+      className="bg-white dark:bg-gray-800 rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow duration-300 cursor-pointer group"
       onClick={onOpen}
     >
       {/* Cover */}
-      <div className="w-full h-52 bg-gray-200">
+      <div className="w-full h-52 bg-gray-200 dark:bg-gray-700">
         {album.coverUrl ? (
           album.coverType === "video" ? (
             <video
@@ -33,7 +33,7 @@ export default function AlbumCard({
             />
           )
         ) : (
-          <div className="w-full h-full flex items-center justify-center text-gray-400 text-sm">
+          <div className="w-full h-full flex items-center justify-center text-gray-400 dark:text-gray-300 text-sm">
             No Images
           </div>
         )}
@@ -42,10 +42,10 @@ export default function AlbumCard({
       {/* Info row */}
       <div className="p-4 flex items-center justify-between">
         <div className="flex items-center space-x-2 truncate">
-          <h3 className="text-lg font-semibold text-gray-900 truncate">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white truncate">
             {album.albumName}
           </h3>
-          <span className="text-sm text-gray-500 whitespace-nowrap">
+          <span className="text-sm text-gray-500 dark:text-gray-400 whitespace-nowrap">
             {album.count || 0} items
           </span>
         </div>
