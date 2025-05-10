@@ -5,7 +5,7 @@ import { getFirebaseToken } from '../utils/firebaseToken';
 
 // 1️⃣ Create an axios instance
 const api = axios.create({
-  baseURL: `${API_BASE_URL}/api/v1/albums`,
+  baseURL: `${API_BASE_URL}/v1/albums`,
   headers: { 'Content-Type': 'application/json' },
 });
 

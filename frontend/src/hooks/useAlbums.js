@@ -1,4 +1,3 @@
-// src/hooks/useAlbums.js
 import { useState, useEffect, useCallback } from 'react';
 import albumApi from '../api/albumApi';
 
@@ -18,12 +17,13 @@ export default function useAlbums() {
     } catch (err) {
       console.error('[useAlbums] fetch error', err);
       setError(err);
+      throw err;
     } finally {
       setLoading(false);
     }
   }, []);
-
-  // run on mount
+  
+ // run on mount
   useEffect(() => {
     load();
   }, [load]);
@@ -33,9 +33,11 @@ export default function useAlbums() {
     try {
       const newAlbum = await albumApi.createAlbum(name);
       setAlbums(prev => [newAlbum, ...prev]);
+      return newAlbum; // ✅ return for optional chaining
     } catch (err) {
       console.error('[useAlbums] create error', err);
       setError(err);
+      throw err;
     }
   };
 
@@ -44,11 +46,13 @@ export default function useAlbums() {
     try {
       const updated = await albumApi.renameAlbum(id, name);
       setAlbums(prev =>
-        prev.map(a => (a._id === id ? updated : a))
+        prev.map(a => (a.albumId === id ? updated : a))
       );
+      return updated;
     } catch (err) {
       console.error('[useAlbums] rename error', err);
       setError(err);
+      throw err;
     }
   };
 
@@ -56,10 +60,11 @@ export default function useAlbums() {
   const remove = async (id) => {
     try {
       await albumApi.deleteAlbum(id);
-      setAlbums(prev => prev.filter(a => a._id !== id));
+      setAlbums(prev => prev.filter(a => a.albumId !== id));
     } catch (err) {
       console.error('[useAlbums] delete error', err);
       setError(err);
+      throw err;
     }
   };
 
