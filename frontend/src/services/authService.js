@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signInWithPopup,
   updateProfile,
+  sendPasswordResetEmail,
 } from "firebase/auth";
 import { auth, provider } from "../config/firebase";
 import { saveUserToDatabase } from "../api/userApi";
@@ -30,4 +31,9 @@ export const signInWithGoogle = async () => {
   const result = await signInWithPopup(auth, provider);
   await saveUserToDatabase(); // sync Google user to backend
   return result;
+};
+
+// 🔁 Forgot password
+export const resetPassword = async (email) => {
+  return await sendPasswordResetEmail(auth, email);
 };

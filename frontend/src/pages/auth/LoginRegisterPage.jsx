@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { Typography } from "@mui/material";
-import AuthFormHandler from "../components/AuthFormHandler";
-import logo from "../assets/images/logo_full_dark.svg";
+import AuthFormHandler from "../../components/AuthFormHandler";
+import logo from "../../assets/images/logo_full_dark.svg";
 
 const LoginRegisterPage = () => {
   const [params] = useSearchParams();

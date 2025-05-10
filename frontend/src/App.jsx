@@ -3,7 +3,8 @@ import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
 import Layout from "./components/Layout";
 
 import LandingPage from "./pages/LandingPage";
-import LoginRegisterPage from "./auth/LoginRegisterPage";
+import LoginRegisterPage from "./pages/auth/LoginRegisterPage.jsx";
+import ForgotPasswordPage from "./pages/auth/ForgotPasswordPage.jsx";
 // import HomePage from "./pages/HomePage";
 import AlbumPage from "./pages/AlbumPage";
 import CaptureMediaPage from "./pages/CaptureMediaPage";
@@ -18,6 +19,7 @@ function App() {
       <Routes>
         <Route path="/landing" element={<LandingPage />} />
         <Route path="/login" element={<LoginRegisterPage />} />
+        <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         {/* Pages with layout */}
         <Route element={<ProtectedRoute />}>
           <Route element={<Layout />}>
