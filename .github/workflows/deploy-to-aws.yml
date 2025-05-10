@@ -28,10 +28,14 @@ jobs:
             echo "Resetting to origin/deploy branch..."
             git fetch origin
             git reset --hard origin/deploy
-
-            echo "Pulling latest changes from the repository..."
             git pull origin deploy
 
-            echo "Building and restarting services..."
+            echo "Stopping and removing old containers/volumes..."
+            docker-compose -f docker-compose.prod.yml down --volumes
+
+            echo "Pruning unused Docker images..."
+            docker system prune -af
+
+            echo "Rebuilding and starting containers..."
             docker-compose -f docker-compose.prod.yml up -d --build
           EOF
