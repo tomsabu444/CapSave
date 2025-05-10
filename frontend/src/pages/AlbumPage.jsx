@@ -15,12 +15,12 @@ export default function AlbumPage() {
   const totalItems = albums.reduce((sum, a) => sum + (a.count || 0), 0);
 
   return (
-    <div className="h-full text-gray-900 p-6">
+    <div className="h-full text-gray-900 dark:text-gray-100 p-6">
       {/* Header */}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Your Albums</h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
             {albums.length} albums · {totalItems} items
           </p>
         </div>
@@ -37,9 +37,9 @@ export default function AlbumPage() {
 
       {/* Content */}
       {loading ? (
-        <p className="text-gray-500 text-center mt-16 text-lg">Loading albums…</p>
+        <p className="text-gray-500 dark:text-gray-400 text-center mt-16 text-lg">Loading albums…</p>
       ) : albums.length === 0 ? (
-        <p className="text-gray-500 text-center mt-16 text-lg">
+        <p className="text-gray-500 dark:text-gray-400 text-center mt-16 text-lg">
           No albums found. Click “Create Album” to get started.
         </p>
       ) : (
@@ -97,9 +97,9 @@ export default function AlbumPage() {
 
       {modal.type === 'delete' && (
         <ModalOverlay onClose={closeModal}>
-          <div className="bg-white p-6 rounded-xl w-80 shadow-2xl">
-            <h2 className="text-xl font-semibold text-gray-900 mb-4">Delete Album</h2>
-            <p className="text-gray-600 text-sm">
+          <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-80 shadow-2xl">
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Delete Album</h2>
+            <p className="text-gray-600 dark:text-gray-300 text-sm">
               Are you sure you want to delete{' '}
               <span className="font-semibold">{modal.album?.albumName}</span>?
               <br />
@@ -108,7 +108,7 @@ export default function AlbumPage() {
             <div className="mt-6 flex justify-end space-x-2">
               <button
                 onClick={closeModal}
-                className="px-3 py-1.5 text-gray-600 hover:text-gray-900 rounded-lg border border-gray-300 text-sm"
+                className="px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg border border-gray-300 dark:border-gray-600 text-sm"
               >
                 Cancel
               </button>

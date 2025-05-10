@@ -34,7 +34,7 @@ function formatMonthKey(dateString) {
   return new Intl.DateTimeFormat('en-GB', {
     month: 'long',
     year: 'numeric',
-  }).format(date); // e.g., "April 2025"
+  }).format(date);
 }
 
 function formatDayKey(dateString) {
@@ -43,25 +43,24 @@ function formatDayKey(dateString) {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
-  }).format(date); // e.g., "22 April 2025"
+  }).format(date);
 }
 
 export default function MediaGallery({ albumId, items, loading, error, remove }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
   if (loading) {
-    return <p className="p-6 text-gray-500 text-center">Loading media…</p>;
+    return <p className="p-6 text-gray-500 dark:text-gray-400 text-center">Loading media…</p>;
   }
 
   if (!items.length) {
     return (
-      <p className="p-6 text-gray-500 text-center">
+      <p className="p-6 text-gray-500 dark:text-gray-400 text-center">
         No media in this album yet.
       </p>
     );
   }
 
-  // ✅ Group by Month > Day
   const grouped = {};
   items.forEach((media) => {
     const monthKey = formatMonthKey(media.createdAt);
@@ -77,16 +76,16 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
     <div className="space-y-10">
       {Object.entries(grouped).map(([month, days]) => (
         <div key={month}>
-          <h1 className="text-2xl font-bold text-gray-900 mb-4">{month}</h1>
+          <h1 className="text-2xl font-bold text-gray-900 dark:text-white mb-4">{month}</h1>
 
           {Object.entries(days).map(([day, mediaList]) => (
             <div key={day} className="mb-6">
-              <h2 className="text-lg font-semibold text-gray-700 mb-2">{day}</h2>
+              <h2 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">{day}</h2>
               <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
                 {mediaList.map((m) => (
                   <div
                     key={m.mediaId}
-                    className="relative bg-white rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
+                    className="relative bg-white dark:bg-gray-800 rounded-md shadow-md hover:shadow-lg transition-shadow duration-300"
                   >
                     <MediaPreview media={m} onClick={() => setSelectedMedia(m)} />
                     <button
@@ -99,7 +98,7 @@ export default function MediaGallery({ albumId, items, loading, error, remove })
                           toast.error(`Failed to delete media: ${err.message}`);
                         }
                       }}
-                      className="absolute top-2 right-2 p-1 bg-gray-800/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
+                      className="absolute top-2 right-2 p-1 bg-gray-800/50 dark:bg-gray-600/50 text-red-500 hover:text-red-600 rounded-full transition-colors duration-200"
                     >
                       <DeleteIcon fontSize="medium" />
                     </button>
