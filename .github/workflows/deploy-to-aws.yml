@@ -1,0 +1,37 @@
+name: 🚀 Deploy to AWS VPS
+
+on:
+  push:
+    branches:
+      - deploy  # Only run when 'deploy' branch is pushed
+
+jobs:
+  deploy:
+    name: 🔧 SSH Deploy to VPS
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: ✅ Checkout Code
+        uses: actions/checkout@v3
+
+      - name: 🔐 Set up SSH access
+        uses: webfactory/ssh-agent@v0.8.0
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: 🚀 Deploy via SSH
+        run: |
+          ssh -o StrictHostKeyChecking=no ${{ secrets.SSH_USER }}@${{ secrets.SSH_HOST }} << 'EOF'
+            set -e
+            cd /var/www/capsave
+
+            echo "Resetting to origin/deploy branch..."
+            git fetch origin
+            git reset --hard origin/deploy
+
+            echo "Pulling latest changes from the repository..."
+            git pull origin deploy
+
+            echo "Building and restarting services..."
+            docker-compose -f docker-compose.prod.yml up -d --build
+          EOF
