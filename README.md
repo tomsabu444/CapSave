@@ -18,8 +18,46 @@
 | **GitHub** | Version control, code collaboration, and automate deployment pipelines (CI/CD). |
 | **AWS S3 Bucket** | Store uploaded photos and videos securely and retrieve them via backend APIs. |
 
+---
 
+## ⚙️ Environment Setup
 
+You need to configure both **backend** and **frontend** `.env` files to run CapSave locally. take copy from .env.example
+
+### 📂 Backend `.env` (in `backend/.env`)
+
+```env
+PORT=5000
+MONGODB_URL=
+FIREBASE_ADMIN_SDK_BASE64=
+AWS_ACCESS_KEY_ID=
+AWS_SECRET_ACCESS_KEY=
+AWS_REGION=
+S3_BUCKET_NAME=
+```
+
+- Encode your entire Firebase Admin SDK JSON file as base64 and assign it to `FIREBASE_ADMIN_SDK_BASE64`.
+- Never commit real `.env` values to source control.
+
+---
+
+### 📂 Frontend `.env` (in `frontend/.env`)
+
+```env
+VITE_FIREBASE_API_KEY=your_firebase_api_key
+VITE_FIREBASE_AUTH_DOMAIN=your_project.firebaseapp.com
+VITE_FIREBASE_PROJECT_ID=your_project_id
+VITE_FIREBASE_STORAGE_BUCKET=your_project.appspot.com
+VITE_FIREBASE_MESSAGING_SENDER_ID=sender_id
+VITE_FIREBASE_APP_ID=your_app_id
+VITE_FIREBASE_MEASUREMENT_ID=G-XXXXXXXX
+VITE_API_BASE_URL=http://localhost:5000
+```
+
+- Prefix all frontend variables with `VITE_` as required by Vite.
+- `VITE_API_BASE_URL` should point to your running backend server.
+
+---
 
 ## 🚀 Setup Instructions
 
@@ -57,7 +95,7 @@ npm run dev
 ## ✅ Functional Requirements
 
 ### 1. User Management
-- [x] User registration, login, and logout.
+- [x] User registration, login, forgetpassword and logout.
 - [ ] Each user should have their own albums and media (private to them only).
 - [x] Token-based authentication for securing user sessions (using Firebase Auth).
 
@@ -130,7 +168,7 @@ npm run dev
 
 | Method | Endpoint         | Description                         |
 |--------|------------------|-------------------------------------|
-| POST   | `/v1/users`      | Creates user after Firebase login   |
+| POST   | `/v1/users`      | Just Save userdata to mongodb       |
 
 ### 📁 Album API
 
@@ -148,7 +186,5 @@ npm run dev
 | POST   | `/v1/media`                | Upload a photo/video to a specific album (multipart) |
 | GET    | `/v1/media/:albumId`       | Fetch all media items from an album    |
 | DELETE | `/v1/media/:mediaId`       | Delete a media item                    |
-
-_All routes require Firebase token via `Authorization: Bearer <id_token>`_
 
 ---

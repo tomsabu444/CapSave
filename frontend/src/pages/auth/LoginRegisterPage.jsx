@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import { Typography } from "@mui/material";
-import AuthFormHandler from "../components/AuthFormHandler";
-import logo from "../assets/images/logo_full_dark.svg";
+import AuthFormHandler from "../../components/auth/AuthFormHandler";
+import logo from "../../assets/images/logo_full_dark.svg";
 
 const LoginRegisterPage = () => {
   const [params] = useSearchParams();
@@ -20,7 +19,7 @@ const LoginRegisterPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center  px-4">
+    <div className="min-h-screen flex items-center justify-center px-4">
       <div className="w-full max-w-md p-6">
         <div className="flex justify-center mb-4">
           <img src={logo} alt="Communets Logo" className="h-12" />
@@ -28,9 +27,14 @@ const LoginRegisterPage = () => {
         <h2 className="text-xl font-semibold text-center mb-4">
           {isRegister ? "Create an Account" : "Welcome Back"}
         </h2>
-        <AuthFormHandler isRegister={isRegister} from={from} />
-        {/*//! handles the form submission and validation */}
-        <Typography variant="body2" className="text-center mt-4">
+
+        <AuthFormHandler
+          isRegister={isRegister}
+          from={from}
+          isVerify={params.get("verifyEmail") === "true"}
+        />
+
+        <p variant="body2" className="text-center mt-4">
           {isRegister ? "Already have an account?" : "Don’t have an account?"}
           <button
             type="button"
@@ -39,7 +43,7 @@ const LoginRegisterPage = () => {
           >
             {isRegister ? "Login" : "Register"}
           </button>
-        </Typography>
+        </p>
       </div>
     </div>
   );

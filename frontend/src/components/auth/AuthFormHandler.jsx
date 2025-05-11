@@ -11,8 +11,11 @@ import {
   loginWithEmail,
   registerWithEmail,
   signInWithGoogle,
-} from "../services/authService";
+} from "../../services/authService";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../../config/firebase";
+import { toast } from "react-toastify";
+import EmailVerificationNotice from "./EmailVerificationNotice";
 
 const AuthFormHandler = ({ isRegister, from }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +31,9 @@ const AuthFormHandler = ({ isRegister, from }) => {
     password: [],
     confirmPassword: "",
   });
+
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -71,7 +77,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
     e.preventDefault();
 
     if (formErrors.password.length > 0 || formErrors.confirmPassword) {
-      alert("Please fix validation errors before submitting.");
+      toast.error("Fix validation errors before submitting.");
       return;
     }
 
@@ -83,26 +89,57 @@ const AuthFormHandler = ({ isRegister, from }) => {
           form.password,
           fullName
         );
-        console.log("✅ Registered & displayName set:", userCred.user);
+
+        setPendingEmail(userCred.user.email);
+        setPendingVerification(true);
       } else {
         const userCred = await loginWithEmail(form.email, form.password);
-        console.log("✅ Logged in:", userCred.user);
+
+        if (!userCred.user.emailVerified) {
+          setPendingEmail(userCred.user.email);
+          setPendingVerification(true);
+          return;
+        }
+
+        toast.success("Logged in successfully");
+        const target = from === "/login" ? "/" : from;
+        navigate(target, { replace: true });
       }
-      navigate(from, { replace: true });
     } catch (err) {
-      alert(err.message);
+      if (
+        err.message === "Please verify your email before logging in." &&
+        auth.currentUser
+      ) {
+        setPendingEmail(auth.currentUser.email);
+        setPendingVerification(true);
+      } else {
+        toast.error(err.message);
+      }
     }
   };
 
   const handleGoogleLogin = async () => {
     try {
       const result = await signInWithGoogle();
-      console.log("✅ Google signed in:", result.user);
-      navigate(from, { replace: true });
+      toast.success("Google login successful");
+      const target = from === "/login" ? "/" : from;
+      navigate(target, { replace: true });
     } catch (err) {
-      alert(err.message);
+      toast.error(err.message);
     }
   };
+
+  if (pendingVerification) {
+    return (
+      <EmailVerificationNotice
+        email={pendingEmail}
+        onSuccess={() => {
+          const target = from === "/login" ? "/" : from;
+          navigate(target, { replace: true });
+        }}
+      />
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">
@@ -188,6 +225,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
           <button
             type="button"
             className="text-sm text-blue-600 hover:underline focus:outline-none"
+            onClick={() => navigate("/forgot-password")}
           >
             Forgot Password?
           </button>
