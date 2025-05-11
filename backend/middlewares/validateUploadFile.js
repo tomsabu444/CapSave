@@ -9,6 +9,7 @@ const allowedMimeTypes = [
   'video/mp4',
   'video/webm',
   'video/quicktime',
+  'video/x-matroska'
 ];
 
 const MAX_SIZE_BYTES = 50 * 1024 * 1024; // 50MB
