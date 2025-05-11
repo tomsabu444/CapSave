@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { IconButton, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { Replay, Save, ArrowForward, Cancel } from "@mui/icons-material";
 import useAlbums from "../hooks/useAlbums";
-import useMedia from "../hooks/useMedia";
+import mediaApi from "../api/mediaApi"; // Import the API directly
 
 export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
   const { albums, add: addAlbum } = useAlbums();
@@ -12,8 +12,6 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
   const [newAlbumName, setNewAlbumName] = useState("");
   const [uploading, setUploading] = useState(false);
   const [uploadError, setUploadError] = useState("");
-
-  const { upload } = useMedia(selectedAlbumId);
 
   useEffect(() => {
     if (albums.length && !selectedAlbumId) {
@@ -28,10 +26,10 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
     try {
       let finalAlbumId = selectedAlbumId;
 
+      // If creating a new album, create it first
       if (newAlbumName.trim()) {
         const created = await addAlbum(newAlbumName.trim());
 
-        // 🧠 Wait and verify created.albumId
         if (!created || !created.albumId) {
           setUploadError("Album creation failed.");
           setUploading(false);
@@ -39,18 +37,28 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
         }
 
         finalAlbumId = created.albumId;
-        setSelectedAlbumId(finalAlbumId);
+        setSelectedAlbumId(finalAlbumId); // Update the state with the new album ID
       }
 
+      // Validate that we have an albumId to use
       if (!finalAlbumId) {
-        setUploadError("No album selected.");
+        setUploadError("No album selected. Please select or create an album.");
         setUploading(false);
         return;
       }
 
-      await upload(blob, finalAlbumId);
+      // Convert blob to File object if needed
+      const mediaFile = new File(
+        [blob],
+        `${type === 'photo' ? 'image' : 'video'}-${Date.now()}.${type === 'photo' ? 'png' : 'mp4'}`,
+        { type: type === 'photo' ? 'image/png' : 'video/mp4' }
+      );
 
-      // ✅ Revoke preview URL if it was an object URL
+      // Call the API directly instead of using the hook
+      // This avoids the issue with the hook requiring albumId at initialization
+      await mediaApi.upload(mediaFile, finalAlbumId);
+
+      // Revoke preview URL if it was an object URL
       if (type === "video" && previewUrl?.startsWith("blob:")) {
         URL.revokeObjectURL(previewUrl);
       }
@@ -58,7 +66,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
       onClose(); // close and reset
     } catch (err) {
       console.error("Upload failed:", err);
-      setUploadError("Upload failed. Please try again.");
+      setUploadError(`Upload failed: ${err.message || "Please try again."}`);
     } finally {
       setUploading(false);
     }
