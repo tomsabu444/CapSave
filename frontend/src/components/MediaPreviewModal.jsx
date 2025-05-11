@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { IconButton, LinearProgress, Tooltip, Typography } from "@mui/material";
 import { Replay, Save, ArrowForward, Cancel } from "@mui/icons-material";
 import useAlbums from "../hooks/useAlbums";
-import mediaApi from "../api/mediaApi"; // Import the API directly
+import mediaApi from "../api/mediaApi";
 
 export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
   const { albums, add: addAlbum } = useAlbums();
