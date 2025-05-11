@@ -37,7 +37,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
         }
 
         finalAlbumId = created.albumId;
-        setSelectedAlbumId(finalAlbumId); // Update the state with the new album ID
+        setSelectedAlbumId(finalAlbumId);
       }
 
       // Validate that we have an albumId to use
@@ -50,12 +50,11 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
       // Convert blob to File object if needed
       const mediaFile = new File(
         [blob],
-        `${type === 'photo' ? 'image' : 'video'}-${Date.now()}.${type === 'photo' ? 'png' : 'mp4'}`,
-        { type: type === 'photo' ? 'image/png' : 'video/mp4' }
+        `${type === "photo" ? "image" : "video"}-${Date.now()}.${type === "photo" ? "png" : "mp4"}`,
+        { type: type === "photo" ? "image/png" : "video/mp4" }
       );
 
-      // Call the API directly instead of using the hook
-      // This avoids the issue with the hook requiring albumId at initialization
+      // Call the API directly
       await mediaApi.upload(mediaFile, finalAlbumId);
 
       // Revoke preview URL if it was an object URL
@@ -93,13 +92,17 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
                 alt="Preview"
                 className="w-full rounded-lg shadow mb-4 max-h-[60vh] object-contain"
               />
-            ) : (
+            ) : previewUrl ? (
               <video
                 controls
                 autoPlay
                 src={previewUrl}
                 className="w-full rounded-lg shadow mb-4 max-h-[60vh]"
               />
+            ) : (
+              <Typography color="error" className="mb-4 text-center">
+                Unable to load video preview.
+              </Typography>
             )}
 
             <div className="flex justify-center gap-6">

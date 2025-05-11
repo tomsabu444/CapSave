@@ -26,7 +26,6 @@ export default function CaptureMediaPage() {
   const [deviceId, setDeviceId] = useState(null);
   const [cameraAvailable, setCameraAvailable] = useState(true);
   const [cameraError, setCameraError] = useState("");
-
   const [mediaData, setMediaData] = useState(null); // { type, blob, previewUrl }
 
   useEffect(() => {
@@ -73,6 +72,10 @@ export default function CaptureMediaPage() {
   };
 
   const handleVideoCapture = (videoBlob) => {
+    if (!videoBlob) {
+      console.error("No video blob provided");
+      return;
+    }
     const previewUrl = URL.createObjectURL(videoBlob);
     setMediaData({
       type: "video",
@@ -141,39 +144,39 @@ export default function CaptureMediaPage() {
 
           {/* Record Video */}
           <ReactMediaRecorder
-            video
-            render={({ status, startRecording, stopRecording, mediaBlobUrl, mediaBlob }) => {
-              useEffect(() => {
-                if (status === "stopped" && mediaBlob) {
-                  handleVideoCapture(mediaBlob);
-                }
-              }, [status, mediaBlob]);
-
-              return (
-                <Tooltip title={status === "recording" ? "Stop Recording" : "Start Recording"}>
-                  <IconButton
-                    onClick={() => {
-                      if (status === "recording") {
-                        stopRecording();
-                      } else {
-                        startRecording();
-                      }
-                    }}
-                    disabled={!cameraAvailable}
-                    className={`relative shadow-xl rounded-full p-4 transition-colors ${
-                      status === "recording"
-                        ? "bg-red-600 text-white hover:bg-red-700"
-                        : "bg-white dark:bg-gray-800 hover:bg-green-100 dark:hover:bg-green-900 text-green-600"
-                    }`}
-                  >
-                    <Videocam fontSize="large" className="text-blue-600 dark:text-blue-300" />
-                    {status === "recording" && (
-                      <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
-                    )}
-                  </IconButton>
-                </Tooltip>
-              );
+            video={{
+              ...videoConstraints,
+              deviceId: deviceId ? { exact: deviceId } : undefined,
             }}
+            audio
+            mimeType="video/mp4"
+            onStop={(blobUrl, blob) => {
+              handleVideoCapture(blob); // Use blob directly
+            }}
+            render={({ status, startRecording, stopRecording }) => (
+              <Tooltip title={status === "recording" ? "Stop Recording" : "Start Recording"}>
+                <IconButton
+                  onClick={() => {
+                    if (status === "recording") {
+                      stopRecording();
+                    } else {
+                      startRecording();
+                    }
+                  }}
+                  disabled={!cameraAvailable}
+                  className={`relative shadow-xl rounded-full p-4 transition-colors ${
+                    status === "recording"
+                      ? "bg-red-600 text-white hover:bg-red-700"
+                      : "bg-white dark:bg-gray-800 hover:bg-green-100 dark:hover:bg-green-900 text-green-600"
+                  }`}
+                >
+                  <Videocam fontSize="large" className="text-blue-600 dark:text-blue-300" />
+                  {status === "recording" && (
+                    <span className="absolute top-1 right-1 h-3 w-3 rounded-full bg-red-400 animate-ping" />
+                  )}
+                </IconButton>
+              </Tooltip>
+            )}
           />
         </div>
       </div>
