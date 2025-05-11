@@ -11,9 +11,9 @@ import {
   loginWithEmail,
   registerWithEmail,
   signInWithGoogle,
-} from "../services/authService";
+} from "../../services/authService";
 import { useNavigate } from "react-router-dom";
-import { auth } from "../config/firebase";
+import { auth } from "../../config/firebase";
 import { toast } from "react-toastify";
 import EmailVerificationNotice from "./EmailVerificationNotice";
 

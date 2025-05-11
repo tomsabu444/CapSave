@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
-import { Typography } from "@mui/material";
-import AuthFormHandler from "../../components/AuthFormHandler";
+import AuthFormHandler from "../../components/auth/AuthFormHandler";
 import logo from "../../assets/images/logo_full_dark.svg";
 
 const LoginRegisterPage = () => {
@@ -35,7 +34,7 @@ const LoginRegisterPage = () => {
           isVerify={params.get("verifyEmail") === "true"}
         />
 
-        <Typography variant="body2" className="text-center mt-4">
+        <p variant="body2" className="text-center mt-4">
           {isRegister ? "Already have an account?" : "Don’t have an account?"}
           <button
             type="button"
@@ -44,7 +43,7 @@ const LoginRegisterPage = () => {
           >
             {isRegister ? "Login" : "Register"}
           </button>
-        </Typography>
+        </p>
       </div>
     </div>
   );

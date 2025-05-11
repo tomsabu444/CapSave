@@ -1,8 +1,8 @@
 // src/components/EmailVerificationNotice.jsx
 import React, { useState } from "react";
 import { Button } from "@mui/material";
-import { auth } from "../config/firebase";
-import { resendVerificationEmail } from "../services/authService";
+import { auth } from "../../config/firebase";
+import { resendVerificationEmail } from "../../services/authService";
 import { toast } from "react-toastify";
 
 const EmailVerificationNotice = ({ email, onSuccess }) => {
