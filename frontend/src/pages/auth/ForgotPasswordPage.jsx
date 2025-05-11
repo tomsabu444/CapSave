@@ -16,7 +16,7 @@ export default function ResetPassword() {
       toast.success("Password reset email sent.");
       setEmail("");
     } catch (err) {
-      toast.error(`❌ ${err.message}`);
+      toast.error(`${err.message}`);
     } finally {
       setIsSubmitting(false);
     }
