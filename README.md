@@ -95,7 +95,7 @@ npm run dev
 ## ✅ Functional Requirements
 
 ### 1. User Management
-- [x] User registration, login, and logout.
+- [x] User registration, login, forgetpassword and logout.
 - [ ] Each user should have their own albums and media (private to them only).
 - [x] Token-based authentication for securing user sessions (using Firebase Auth).
 
@@ -168,7 +168,7 @@ npm run dev
 
 | Method | Endpoint         | Description                         |
 |--------|------------------|-------------------------------------|
-| POST   | `/v1/users`      | Creates user after Firebase login   |
+| POST   | `/v1/users`      | Just Save userdata to mongodb       |
 
 ### 📁 Album API
 
@@ -186,7 +186,5 @@ npm run dev
 | POST   | `/v1/media`                | Upload a photo/video to a specific album (multipart) |
 | GET    | `/v1/media/:albumId`       | Fetch all media items from an album    |
 | DELETE | `/v1/media/:mediaId`       | Delete a media item                    |
-
-_All routes require Firebase token via `Authorization: Bearer <id_token>`_
 
 ---
