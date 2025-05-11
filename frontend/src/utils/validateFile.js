@@ -11,6 +11,7 @@ export const ALLOWED_TYPES = [
   'video/mp4',
   'video/webm',
   'video/quicktime',
+  'video/x-matroska'
 ];
 
 export function validateFile(file) {
