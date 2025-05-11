@@ -13,7 +13,9 @@ import {
   signInWithGoogle,
 } from "../services/authService";
 import { useNavigate } from "react-router-dom";
+import { auth } from "../config/firebase";
 import { toast } from "react-toastify";
+import EmailVerificationNotice from "./EmailVerificationNotice";
 
 const AuthFormHandler = ({ isRegister, from }) => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,6 +31,9 @@ const AuthFormHandler = ({ isRegister, from }) => {
     password: [],
     confirmPassword: "",
   });
+
+  const [pendingVerification, setPendingVerification] = useState(false);
+  const [pendingEmail, setPendingEmail] = useState("");
 
   const navigate = useNavigate();
 
@@ -84,17 +89,32 @@ const AuthFormHandler = ({ isRegister, from }) => {
           form.password,
           fullName
         );
-        toast.success("Registration successful");
-        console.log("Registered:", userCred.user);
+
+        setPendingEmail(userCred.user.email);
+        setPendingVerification(true);
       } else {
         const userCred = await loginWithEmail(form.email, form.password);
-        toast.success("Logged in successfully");
-        console.log("Logged in:", userCred.user);
-      }
 
-      navigate(from, { replace: true });
+        if (!userCred.user.emailVerified) {
+          setPendingEmail(userCred.user.email);
+          setPendingVerification(true);
+          return;
+        }
+
+        toast.success("Logged in successfully");
+        const target = from === "/login" ? "/" : from;
+        navigate(target, { replace: true });
+      }
     } catch (err) {
-      toast.error(` ${err.message}`);
+      if (
+        err.message === "Please verify your email before logging in." &&
+        auth.currentUser
+      ) {
+        setPendingEmail(auth.currentUser.email);
+        setPendingVerification(true);
+      } else {
+        toast.error(err.message);
+      }
     }
   };
 
@@ -102,11 +122,24 @@ const AuthFormHandler = ({ isRegister, from }) => {
     try {
       const result = await signInWithGoogle();
       toast.success("Google login successful");
-      navigate(from, { replace: true });
+      const target = from === "/login" ? "/" : from;
+      navigate(target, { replace: true });
     } catch (err) {
-      toast.error(` ${err.message}`);
+      toast.error(err.message);
     }
   };
+
+  if (pendingVerification) {
+    return (
+      <EmailVerificationNotice
+        email={pendingEmail}
+        onSuccess={() => {
+          const target = from === "/login" ? "/" : from;
+          navigate(target, { replace: true });
+        }}
+      />
+    );
+  }
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-4">

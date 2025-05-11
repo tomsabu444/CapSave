@@ -16,8 +16,17 @@ const ProtectedRoute = () => {
   }
 
   if (!user) {
-    //! Redirect and preserve the original location
     return <Navigate to="/login" state={{ from: location }} replace />;
+  }
+
+  if (!user.emailVerified) {
+    return (
+      <Navigate
+        to="/login?verifyEmail=true"
+        state={{ from: location }}
+        replace
+      />
+    );
   }
 
   return <Outlet />;
