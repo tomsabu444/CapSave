@@ -111,7 +111,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
                   onClick={onClose}
                   className="bg-red-600 hover:bg-red-700 text-white p-3"
                 >
-                  <Replay className="text-white" />
+                  <Replay className="text-black dark:text-white" />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Next">
@@ -119,7 +119,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
                   onClick={() => setStep(2)}
                   className="bg-blue-600 hover:bg-blue-700 text-white p-3"
                 >
-                  <ArrowForward className="text-white" />
+                  <ArrowForward className="text-black dark:text-white" />
                 </IconButton>
               </Tooltip>
             </div>
@@ -179,7 +179,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
                   onClick={onClose}
                   className="bg-red-600 hover:bg-red-700 text-white p-3"
                 >
-                  <Cancel className="text-white" />
+                  <Cancel className="text-black dark:text-white" />
                 </IconButton>
               </Tooltip>
               <Tooltip title="Save to Album">
@@ -190,7 +190,7 @@ export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
                   }
                   className="bg-green-600 hover:bg-green-700 text-white p-3 disabled:opacity-50"
                 >
-                  <Save className="text-white" />
+                  <Save className="text-black dark:text-white" />
                 </IconButton>
               </Tooltip>
             </div>
