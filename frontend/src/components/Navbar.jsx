@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import MenuIcon from "@mui/icons-material/Menu";
-import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
@@ -14,23 +13,28 @@ import ClickAwayListener from "@mui/material/ClickAwayListener";
 import { signOut } from "firebase/auth";
 import { auth } from "../config/firebase";
 import MediaUploadModal from "./MediaUploadModal";
-import { useTheme } from "../context/ThemeContext"; // <-- use ThemeContext
+import { useTheme } from "../context/ThemeContext";
 
 export default function Navbar({ onHamburgerClick }) {
   const navigate = useNavigate();
   const user = auth.currentUser;
+  const { darkMode, setDarkMode } = useTheme();
 
-  const { darkMode, setDarkMode } = useTheme(); // <-- from context
-
-  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [showMobileAddMenu, setShowMobileAddMenu] = useState(false);
   const [showProfileMenu, setShowProfileMenu] = useState(false);
   const [uploadOpen, setUploadOpen] = useState(false);
 
-  const handleSignOut = async () => {
+  // Sign-out handler: invoked on click or touch
+  const handleSignOut = async (e) => {
+    e.stopPropagation();
+    setShowProfileMenu(false);
     await signOut(auth);
     navigate("/login");
+  };
+
+  const toggleProfileMenu = (e) => {
+    e.stopPropagation();
+    setShowProfileMenu((prev) => !prev);
   };
 
   const renderProfileMenu = () => (
@@ -42,13 +46,14 @@ export default function Navbar({ onHamburgerClick }) {
         <div className="text-left text-sm text-gray-500 dark:text-gray-300 truncate">
           {user?.email || "No Email"}
         </div>
-        <div className="border-t my-2 border-gray-300 dark:border-gray-600"></div>
+        <div className="border-t my-2 border-gray-300 dark:border-gray-600" />
         <Button
           variant="outlined"
           color="error"
           startIcon={<LogoutIcon />}
           fullWidth
           onClick={handleSignOut}
+          onTouchStart={handleSignOut} // ensure touch triggers sign-out
         >
           Sign Out
         </Button>
@@ -63,20 +68,8 @@ export default function Navbar({ onHamburgerClick }) {
         <MenuIcon fontSize="medium" />
       </button>
 
-      {/* 🔍 Search (Desktop) */}
-      <div className="hidden lg:flex items-center w-1/3 max-w-sm relative">
-        <SearchIcon className="absolute left-3 text-gray-400" />
-        <input
-          type="text"
-          placeholder="Search by tags..."
-          className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-      </div>
-
       {/* 🖥️ Desktop Controls */}
-      <div className="hidden lg:flex items-center gap-4">
+      <div className="hidden lg:flex w-full justify-end items-center gap-4">
         <div className="flex items-center gap-2">
           <Button
             variant="outlined"
@@ -105,7 +98,7 @@ export default function Navbar({ onHamburgerClick }) {
 
         <div className="relative">
           <button
-            onClick={() => setShowProfileMenu((prev) => !prev)}
+            onClick={toggleProfileMenu}
             className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
           >
             <Avatar sx={{ width: 32, height: 32 }}>
@@ -118,10 +111,6 @@ export default function Navbar({ onHamburgerClick }) {
 
       {/* 📱 Mobile Controls */}
       <div className="flex lg:hidden items-center space-x-3 relative">
-        <button onClick={() => setMobileSearchOpen((prev) => !prev)}>
-          <SearchIcon className="text-blue-600" />
-        </button>
-
         <button
           onClick={() => setDarkMode((prev) => !prev)}
           className="text-blue-600 cursor-pointer"
@@ -170,7 +159,7 @@ export default function Navbar({ onHamburgerClick }) {
 
         <div className="relative">
           <button
-            onClick={() => setShowProfileMenu((prev) => !prev)}
+            onClick={toggleProfileMenu}
             className="cursor-pointer shadow-lg border-2 border-blue-600 rounded-full"
           >
             <Avatar sx={{ width: 32, height: 32 }}>
@@ -181,29 +170,8 @@ export default function Navbar({ onHamburgerClick }) {
         </div>
       </div>
 
-      {/* 🔍 Mobile Fullscreen Search Overlay */}
-      {mobileSearchOpen && (
-        <div className="absolute inset-0 bg-white dark:bg-gray-900 z-50 flex items-center px-4">
-          <SearchIcon className="text-gray-400 mr-2" />
-          <input
-            type="text"
-            autoFocus
-            placeholder="Search..."
-            className="flex-1 py-2 px-2 border border-gray-300 dark:border-gray-700 dark:bg-gray-800 dark:text-white rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-          />
-          <button
-            className="ml-2 text-blue-600 font-semibold"
-            onClick={() => setMobileSearchOpen(false)}
-          >
-            Cancel
-          </button>
-        </div>
-      )}
-
       {/* Upload Modal */}
-      {uploadOpen && <MediaUploadModal onClose={() => setUploadOpen(false)} />}
+      {uploadOpen && <MediaUploadModal onClose={() => setUploadOpen(false)} />}   
     </div>
   );
 }
