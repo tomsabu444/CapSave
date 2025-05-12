@@ -81,7 +81,7 @@ export default function MediaGalleryPage() {
         {album.albumName}
       </h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-        {album.count || 0} items • Created{" "}
+        {items.length} items • Created{" "}
         {new Date(album.createdAt).toLocaleDateString()}
       </p>
 
