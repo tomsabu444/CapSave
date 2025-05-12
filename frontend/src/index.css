@@ -1,3 +1,18 @@
 @import "tailwindcss";
 
+/* tailwind V4 dark-light mode */
 @custom-variant dark (&:where(.dark, .dark *));
+
+@media only screen and (max-width: 640px) {
+    :root {
+        /* Make the “default” toast width fluid on small screens */
+        --toastify-toast-width: 82px;
+        /* Keep at least 16px offset from each edge */
+        --toastify-toast-offset: 26px;
+    }
+
+    /* Ensure the container applies that offset */
+    .Toastify__toast-container {
+        padding: 10px var(--toastify-toast-offset);
+    }
+}
