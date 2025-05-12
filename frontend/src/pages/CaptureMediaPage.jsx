@@ -15,8 +15,8 @@ import {
 import MediaPreviewModal from "../components/MediaPreviewModal";
 
 const videoConstraints = {
-  width: 1280,
-  height: 720,
+  width: 1920,
+  height: 1080,
   facingMode: "user",
 };
 
@@ -162,7 +162,7 @@ export default function CaptureMediaPage() {
               deviceId: videoDeviceId ? { exact: videoDeviceId } : undefined,
             }}
             screenshotFormat="image/png"
-            className="w-[95%] h-auto max-h-[90vh] object-contain rounded-md"
+            className="w-[95%] h-auto max-h-[75vh] md:max-h-[90vh] object-contain rounded-md"
           />
         ) : (
           <div className="w-[95%] h-[70vh] border-2 border-gray-400 dark:border-gray-600 rounded-md flex items-center justify-center text-center text-gray-600 dark:text-gray-300 px-4">
