@@ -10,8 +10,7 @@ export const ALLOWED_TYPES = [
   'image/gif',
   'video/mp4',
   'video/webm',
-  'video/quicktime',
-  'video/x-matroska'
+  'video/quicktime'
 ];
 
 export function validateFile(file) {

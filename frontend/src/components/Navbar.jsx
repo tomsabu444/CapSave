@@ -73,7 +73,7 @@ export default function Navbar({ onHamburgerClick }) {
         <div className="flex items-center gap-2">
           <Button
             variant="outlined"
-            size="small"
+            size="medium"
             startIcon={<UploadFileIcon />}
             onClick={() => setUploadOpen(true)}
           >
@@ -81,7 +81,7 @@ export default function Navbar({ onHamburgerClick }) {
           </Button>
           <Button
             variant="contained"
-            size="small"
+            size="medium"
             startIcon={<CameraAltIcon />}
             onClick={() => navigate("/capture")}
           >

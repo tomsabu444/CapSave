@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { Button } from '@mui/material';
 import useAlbums from '../hooks/useAlbums';
 import useMedia from '../hooks/useMedia';
 import { toast } from 'react-toastify';
-import { validateFile, ALLOWED_TYPES } from '../utils/validateFile';
+import { validateFile, ALLOWED_TYPES, MAX_SIZE_MB } from '../utils/validateFile';
 
 export default function MediaUploadModal({ onClose }) {
   const { albums } = useAlbums();
@@ -78,7 +79,7 @@ export default function MediaUploadModal({ onClose }) {
           <p className="text-red-500 text-sm mt-2">{error}</p>
         ) : (
           <p className="text-gray-400 dark:text-gray-500 text-xs mt-2">
-            Max size: 50MB. Allowed types: {ALLOWED_TYPES.map(t => t.split('/')[1]).join(', ')}.
+            Max size: {MAX_SIZE_MB} MB. Allowed types: {ALLOWED_TYPES.map(t => t.split('/')[1]).join(', ')}.
           </p>
         )}
 
@@ -94,21 +95,28 @@ export default function MediaUploadModal({ onClose }) {
           ))}
         </select>
 
-        <div className="mt-6 flex justify-end space-x-2">
-          <button
+        <div className="mt-6 flex justify-between space-x-2">
+          {/* Cancel */}
+          <Button
+            variant="outlined"
+            size="small"
             onClick={onClose}
             disabled={submitting}
-            className="px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg border border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-400 transition-colors duration-200 text-sm disabled:opacity-50"
+            sx={{ textTransform: 'none' }}
           >
             Cancel
-          </button>
-          <button
+          </Button>
+          {/* Upload */}
+          <Button
+            variant="contained"
+            color="primary"
+            size="small"
             onClick={handleUpload}
             disabled={submitting}
-            className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg transition-colors duration-200 text-sm disabled:opacity-50"
+            sx={{ textTransform: 'none' }}
           >
             {submitting ? 'Uploading…' : 'Upload'}
-          </button>
+          </Button>
         </div>
       </div>
     </div>
