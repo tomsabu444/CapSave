@@ -2,7 +2,7 @@ import React, { useState, Suspense, lazy } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 import FullScreenView from "./FullScreenView";
-
+import Loader from "./Loader";
 function MediaPreview({ media, onClick }) {
   return (
     <div
