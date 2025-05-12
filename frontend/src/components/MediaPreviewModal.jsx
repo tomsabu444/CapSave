@@ -1,5 +1,3 @@
-// src/components/MediaPreviewModal.jsx
-
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Typography } from '@mui/material';
@@ -69,7 +67,6 @@ export default function MediaPreviewModal({
     // 3. Perform upload
     setIsSaving(true);
     try {
-      // If blob isn't a File, wrap it
       const file =
         blob instanceof File
           ? blob
@@ -88,51 +85,75 @@ export default function MediaPreviewModal({
     }
   };
 
+  // Handle background click only if not saving
+  const handleBackgroundClick = (e) => {
+    if (!isSaving) {
+      onClose();
+    }
+  };
+
   return (
     <div
-      className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 px-4 backdrop-blur-sm"
-      onClick={onClose}
+      className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 px-2 sm:px-4 backdrop-blur-sm"
+      onClick={handleBackgroundClick}
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="modal-title"
     >
       <div
-        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-2xl w-full max-w-lg"
+        className="bg-white dark:bg-gray-900 p-4 sm:p-6 rounded-xl shadow-2xl w-full max-w-md sm:max-w-lg max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}
       >
-        <Typography variant="h6" className="mb-4 text-gray-900 dark:text-white">
+        <Typography
+          id="modal-title"
+          variant="h6"
+          className="mb-4 text-gray-900 dark:text-white"
+        >
           {type === 'photo' ? 'Preview Photo' : 'Preview Video'}
         </Typography>
 
         {/* Preview */}
-        <div className="mb-6">
+        <div className="mb-4 sm:mb-6">
           {type === 'photo' ? (
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full rounded-lg object-contain"
+              className="w-full h-auto rounded-lg object-contain max-h-[40vh] sm:max-h-[50vh]"
             />
           ) : (
             <video
               src={previewUrl}
-              className="w-full rounded-lg bg-black"
+              className="w-full h-auto rounded-lg bg-black max-h-[40vh] sm:max-h-[50vh]"
               controls
             />
           )}
         </div>
 
         {step === 1 && (
-          <div className="flex justify-between space-x-2">
+          <div className="flex justify-between gap-2">
             <Button
               variant="outlined"
-              size="small"
+              size="medium"
               onClick={onClose}
-              sx={{ textTransform: 'none' }}
+              sx={{
+                textTransform: 'none',
+                flex: 1,
+                py: 1,
+                fontSize: '1rem',
+              }}
             >
               Cancel
             </Button>
             <Button
               variant="contained"
-              size="small"
+              size="medium"
               onClick={handleNext}
-              sx={{ textTransform: 'none' }}
+              sx={{
+                textTransform: 'none',
+                flex: 1,
+                py: 1,
+                fontSize: '1rem',
+              }}
             >
               Save
             </Button>
@@ -151,27 +172,41 @@ export default function MediaPreviewModal({
             />
 
             {error && (
-              <Typography color="error" variant="caption" className="block mb-2">
+              <Typography
+                color="error"
+                variant="caption"
+                className="block mb-2 text-center"
+              >
                 {error}
               </Typography>
             )}
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-end gap-2">
               <Button
                 variant="outlined"
-                size="small"
+                size="medium"
                 onClick={onClose}
                 disabled={isSaving}
-                sx={{ textTransform: 'none' }}
+                sx={{
+                  textTransform: 'none',
+                  flex: 1,
+                  py: 1,
+                  fontSize: '1rem',
+                }}
               >
                 Cancel
               </Button>
               <Button
                 variant="contained"
-                size="small"
+                size="medium"
                 onClick={handleSave}
                 disabled={isSaving}
-                sx={{ textTransform: 'none' }}
+                sx={{
+                  textTransform: 'none',
+                  flex: 1,
+                  py: 1,
+                  fontSize: '1rem',
+                }}
               >
                 {isSaving ? 'Saving…' : 'Save to Album'}
               </Button>
@@ -184,13 +219,9 @@ export default function MediaPreviewModal({
 }
 
 MediaPreviewModal.propTypes = {
-  /** 'photo' or 'video' */
   type: PropTypes.oneOf(['photo', 'video']).isRequired,
-  /** URL for preview display */
   previewUrl: PropTypes.string.isRequired,
-  /** Blob or File to upload */
   blob: PropTypes.oneOfType([PropTypes.instanceOf(Blob), PropTypes.instanceOf(File)])
     .isRequired,
-  /** Callback to close the modal */
   onClose: PropTypes.func.isRequired,
 };
