@@ -188,3 +188,15 @@ npm run dev
 | DELETE | `/v1/media/:mediaId`       | Delete a media item                    |
 
 ---
+
+
+## 📸 Screenshots
+
+### Dark Mode  
+![Dark Mode](.github/screenshots/localhost_3000_dark.png)
+
+### Albums View  
+![Albums Page](.github/screenshots/localhost_3000_albums.png)
+
+### Light Mode  
+![Light Mode](.github/screenshots/localhost_3000_light.png)
