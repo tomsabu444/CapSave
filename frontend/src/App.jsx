@@ -6,12 +6,8 @@ import CustomToastContainer from "./components/CustomToastContainer";
 import Loader from "./components/Loader.jsx";
 
 // Lazy-loaded page components
-const LoginRegisterPage = lazy(() =>
-  import("./pages/auth/LoginRegisterPage.jsx")
-);
-const ForgotPasswordPage = lazy(() =>
-  import("./pages/auth/ForgotPasswordPage.jsx")
-);
+const LoginRegisterPage = lazy(() => import("./pages/auth/LoginRegisterPage.jsx"));
+const ForgotPasswordPage = lazy(() => import("./pages/auth/ForgotPasswordPage.jsx"));
 // const HomePage = lazy(() => import("./pages/HomePage"));
 const AlbumPage = lazy(() => import("./pages/AlbumPage"));
 const CaptureMediaPage = lazy(() => import("./pages/CaptureMediaPage"));
