@@ -1,204 +1,196 @@
-import React, { useState, useEffect } from "react";
-import { IconButton, LinearProgress, Tooltip, Typography } from "@mui/material";
-import { Replay, Save, ArrowForward, Cancel } from "@mui/icons-material";
-import useAlbums from "../hooks/useAlbums";
-import mediaApi from "../api/mediaApi";
+// src/components/MediaPreviewModal.jsx
 
-export default function MediaPreviewModal({ type, previewUrl, blob, onClose }) {
-  const { albums, add: addAlbum } = useAlbums();
+import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
+import { Button, Typography } from '@mui/material';
+import { toast } from 'react-toastify';
+
+import useAlbums from '../hooks/useAlbums';
+import mediaApi from '../api/mediaApi';
+import AlbumSelectOrCreate from './AlbumSelectOrCreate';
+
+export default function MediaPreviewModal({
+  type,
+  previewUrl,
+  blob,
+  onClose,
+}) {
+  const { albums, add: createAlbum } = useAlbums();
 
   const [step, setStep] = useState(1);
-  const [selectedAlbumId, setSelectedAlbumId] = useState("");
-  const [newAlbumName, setNewAlbumName] = useState("");
-  const [uploading, setUploading] = useState(false);
-  const [uploadError, setUploadError] = useState("");
+  const [selectedAlbumId, setSelectedAlbumId] = useState('');
+  const [newAlbumName, setNewAlbumName] = useState('');
+  const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState('');
 
+  // Pre-select first album if available when entering step 2
   useEffect(() => {
-    if (albums.length && !selectedAlbumId) {
+    if (step === 2 && albums.length > 0 && !selectedAlbumId) {
       setSelectedAlbumId(albums[0].albumId);
     }
-  }, [albums, selectedAlbumId]);
+  }, [step, albums, selectedAlbumId]);
 
+  /** Advance from preview to album selection */
+  const handleNext = () => {
+    setError('');
+    setStep(2);
+  };
+
+  /** Save into album: create album if needed, then upload blob */
   const handleSave = async () => {
-    setUploading(true);
-    setUploadError("");
+    setError('');
 
-    try {
-      let finalAlbumId = selectedAlbumId;
+    let targetAlbumId = selectedAlbumId;
 
-      // If creating a new album, create it first
-      if (newAlbumName.trim()) {
-        const created = await addAlbum(newAlbumName.trim());
-
-        if (!created || !created.albumId) {
-          setUploadError("Album creation failed.");
-          setUploading(false);
-          return;
+    // 1. Create album if user entered name
+    if (newAlbumName.trim()) {
+      try {
+        const result = await createAlbum(newAlbumName.trim());
+        if (!result?.albumId) {
+          throw new Error('No albumId returned');
         }
-
-        finalAlbumId = created.albumId;
-        setSelectedAlbumId(finalAlbumId);
+        targetAlbumId = result.albumId;
+        setSelectedAlbumId(targetAlbumId);
+        toast.success(`Album "${newAlbumName.trim()}" created`);
+      } catch (err) {
+        console.error('Album creation error:', err);
+        return setError('Failed to create album. Try another name.');
       }
+    }
 
-      // Validate that we have an albumId to use
-      if (!finalAlbumId) {
-        setUploadError("No album selected. Please select or create an album.");
-        setUploading(false);
-        return;
-      }
+    // 2. Validate album selection
+    if (!targetAlbumId) {
+      const msg = albums.length
+        ? 'Select an existing album or enter a new one.'
+        : 'No albums available. Please create one.';
+      return setError(msg);
+    }
 
-      // Convert blob to File object if needed
-      const mediaFile = new File(
-        [blob],
-        `${type === "photo" ? "image" : "video"}-${Date.now()}.${type === "photo" ? "png" : "mp4"}`,
-        { type: type === "photo" ? "image/png" : "video/mp4" }
-      );
+    // 3. Perform upload
+    setIsSaving(true);
+    try {
+      // If blob isn't a File, wrap it
+      const file =
+        blob instanceof File
+          ? blob
+          : new File([blob], `capture.${type === 'photo' ? 'jpg' : 'webm'}`, {
+              type: blob.type || (type === 'photo' ? 'image/jpeg' : 'video/webm'),
+            });
 
-      // Call the API directly
-      await mediaApi.upload(mediaFile, finalAlbumId);
-
-      // Revoke preview URL if it was an object URL
-      if (type === "video" && previewUrl?.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
-
-      onClose(); // close and reset
+      await mediaApi.upload(file, targetAlbumId);
+      toast.success('Saved to album!');
+      onClose();
     } catch (err) {
-      console.error("Upload failed:", err);
-      setUploadError(`Upload failed: ${err.message || "Please try again."}`);
+      console.error('Upload error:', err);
+      setError(`Upload failed: ${err.message || 'Please try again.'}`);
     } finally {
-      setUploading(false);
+      setIsSaving(false);
     }
   };
 
   return (
     <div
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center px-4 py-6"
+      className="fixed inset-0 bg-black/40 dark:bg-black/60 flex items-center justify-center z-50 px-4 backdrop-blur-sm"
       onClick={onClose}
     >
       <div
-        className="bg-white dark:bg-gray-900 text-gray-900 dark:text-white w-full max-w-lg rounded-xl p-6 shadow-2xl"
+        className="bg-white dark:bg-gray-900 p-6 rounded-xl shadow-2xl w-full max-w-lg"
         onClick={(e) => e.stopPropagation()}
       >
-        {step === 1 ? (
-          <>
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Media Preview
-            </h2>
+        <Typography variant="h6" className="mb-4 text-gray-900 dark:text-white">
+          {type === 'photo' ? 'Preview Photo' : 'Preview Video'}
+        </Typography>
 
-            {type === "photo" ? (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="w-full rounded-lg shadow mb-4 max-h-[60vh] object-contain"
-              />
-            ) : previewUrl ? (
-              <video
-                controls
-                autoPlay
-                src={previewUrl}
-                className="w-full rounded-lg shadow mb-4 max-h-[60vh]"
-              />
-            ) : (
-              <Typography color="error" className="mb-4 text-center">
-                Unable to load video preview.
+        {/* Preview */}
+        <div className="mb-6">
+          {type === 'photo' ? (
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="w-full rounded-lg object-contain"
+            />
+          ) : (
+            <video
+              src={previewUrl}
+              className="w-full rounded-lg bg-black"
+              controls
+            />
+          )}
+        </div>
+
+        {step === 1 && (
+          <div className="flex justify-between space-x-2">
+            <Button
+              variant="outlined"
+              size="small"
+              onClick={onClose}
+              sx={{ textTransform: 'none' }}
+            >
+              Cancel
+            </Button>
+            <Button
+              variant="contained"
+              size="small"
+              onClick={handleNext}
+              sx={{ textTransform: 'none' }}
+            >
+              Save
+            </Button>
+          </div>
+        )}
+
+        {step === 2 && (
+          <>
+            {/* Album selection/creation */}
+            <AlbumSelectOrCreate
+              albums={albums}
+              selectedAlbumId={selectedAlbumId}
+              newAlbumName={newAlbumName}
+              onSelectAlbum={setSelectedAlbumId}
+              onChangeNewAlbumName={setNewAlbumName}
+            />
+
+            {error && (
+              <Typography color="error" variant="caption" className="block mb-2">
+                {error}
               </Typography>
             )}
 
-            <div className="flex justify-center gap-6">
-              <Tooltip title="Retake">
-                <IconButton
-                  onClick={onClose}
-                  className="bg-red-600 hover:bg-red-700 text-white p-3"
-                >
-                  <Replay className="text-black dark:text-white" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Next">
-                <IconButton
-                  onClick={() => setStep(2)}
-                  className="bg-blue-600 hover:bg-blue-700 text-white p-3"
-                >
-                  <ArrowForward className="text-black dark:text-white" />
-                </IconButton>
-              </Tooltip>
-            </div>
-          </>
-        ) : (
-          <>
-            <h2 className="text-lg font-semibold mb-4 text-center">
-              Save to Album
-            </h2>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-1">
-                Choose Existing Album
-              </label>
-              <select
-                value={selectedAlbumId}
-                onChange={(e) => {
-                  setSelectedAlbumId(e.target.value);
-                  setNewAlbumName("");
-                }}
-                className="w-full text-sm rounded-md px-3 py-2 bg-white dark:bg-gray-800 text-black dark:text-white border border-gray-300 dark:border-gray-700 focus:outline-none"
+            <div className="flex justify-end space-x-2">
+              <Button
+                variant="outlined"
+                size="small"
+                onClick={onClose}
+                disabled={isSaving}
+                sx={{ textTransform: 'none' }}
               >
-                <option value="">-- Select Album --</option>
-                {albums.map((a) => (
-                  <option key={a.albumId} value={a.albumId}>
-                    {a.albumName}
-                  </option>
-                ))}
-              </select>
+                Cancel
+              </Button>
+              <Button
+                variant="contained"
+                size="small"
+                onClick={handleSave}
+                disabled={isSaving}
+                sx={{ textTransform: 'none' }}
+              >
+                {isSaving ? 'Saving…' : 'Save to Album'}
+              </Button>
             </div>
-
-            <div className="mb-6">
-              <label className="block text-sm font-medium mb-1">
-                Or Create New Album
-              </label>
-              <input
-                type="text"
-                value={newAlbumName}
-                onChange={(e) => {
-                  setNewAlbumName(e.target.value);
-                  setSelectedAlbumId("");
-                }}
-                placeholder="Enter new album name"
-                className="w-full text-sm rounded-md px-3 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white border border-gray-300 dark:border-gray-600 focus:outline-none"
-              />
-            </div>
-
-            {uploadError && (
-              <Typography color="error" className="mb-2">
-                {uploadError}
-              </Typography>
-            )}
-
-            <div className="flex justify-center gap-6">
-              <Tooltip title="Cancel">
-                <IconButton
-                  onClick={onClose}
-                  className="bg-red-600 hover:bg-red-700 text-white p-3"
-                >
-                  <Cancel className="text-black dark:text-white" />
-                </IconButton>
-              </Tooltip>
-              <Tooltip title="Save to Album">
-                <IconButton
-                  onClick={handleSave}
-                  disabled={
-                    uploading || (!newAlbumName.trim() && !selectedAlbumId)
-                  }
-                  className="bg-green-600 hover:bg-green-700 text-white p-3 disabled:opacity-50"
-                >
-                  <Save className="text-black dark:text-white" />
-                </IconButton>
-              </Tooltip>
-            </div>
-
-            {uploading && <LinearProgress className="w-full mt-4" />}
           </>
         )}
       </div>
     </div>
   );
 }
+
+MediaPreviewModal.propTypes = {
+  /** 'photo' or 'video' */
+  type: PropTypes.oneOf(['photo', 'video']).isRequired,
+  /** URL for preview display */
+  previewUrl: PropTypes.string.isRequired,
+  /** Blob or File to upload */
+  blob: PropTypes.oneOfType([PropTypes.instanceOf(Blob), PropTypes.instanceOf(File)])
+    .isRequired,
+  /** Callback to close the modal */
+  onClose: PropTypes.func.isRequired,
+};

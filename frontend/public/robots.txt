@@ -1,4 +1,4 @@
 User-agent: *
 Disallow:
 
-Sitemap: https://palamarathon.efpala.org/sitemap.xml
+Sitemap: https://capsave.tomsabu.com/sitemap.xml

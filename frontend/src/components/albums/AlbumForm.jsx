@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Button } from '@mui/material';
 
 export default function AlbumForm({ title, initialName, onSubmit, onCancel }) {
   const [name, setName] = useState(initialName);
@@ -29,19 +30,24 @@ export default function AlbumForm({ title, initialName, onSubmit, onCancel }) {
         className="w-full px-3 py-2 bg-gray-50 dark:bg-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-300 rounded-lg border border-gray-300 dark:border-gray-600 focus:outline-none focus:border-blue-500 text-sm"
       />
       {error && <p className="text-red-500 text-sm mt-2">{error}</p>}
-      <div className="mt-6 flex justify-end space-x-2">
-        <button
+      <div className="mt-6 flex justify-between space-x-2">
+        <Button
+          variant="outlined"
+          size="small"
           onClick={onCancel}
-          className="px-3 py-1.5 text-gray-600 dark:text-gray-300 hover:text-gray-900 dark:hover:text-white rounded-lg border border-gray-300 dark:border-gray-600 text-sm"
+          sx={{ textTransform: 'none' }}
         >
           Cancel
-        </button>
-        <button
+        </Button>
+        <Button
+          variant="contained"
+          color="primary"
+          size="small"
           onClick={handleSubmit}
-          className="px-3 py-1.5 bg-blue-500 hover:bg-blue-600 text-white rounded-lg text-sm"
+          sx={{ textTransform: 'none' }}
         >
           {title.startsWith('Create') ? 'Create' : 'Save'}
-        </button>
+        </Button>
       </div>
     </div>
   );
