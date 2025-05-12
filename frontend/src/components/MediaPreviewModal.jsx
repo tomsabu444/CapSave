@@ -105,12 +105,12 @@ export default function MediaPreviewModal({
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full max-h-[20vh] sm:h-auto rounded-lg object-contain"
+              className="w-full max-h-[30vh] sm:h-auto rounded-lg object-contain"
             />
           ) : (
             <video
               src={previewUrl}
-              className="w-full max-h-[20vh] sm:h-auto rounded-lg bg-black"
+              className="w-full max-h-[30vh] sm:h-auto rounded-lg bg-black"
               controls
             />
           )}
