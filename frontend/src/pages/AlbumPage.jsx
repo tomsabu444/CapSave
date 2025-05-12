@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Button } from '@mui/material';
 import useAlbums from '../hooks/useAlbums';
 import AlbumCard from '../components/albums/AlbumCard';
 import AlbumForm from '../components/albums/AlbumForm';
@@ -24,20 +25,22 @@ export default function AlbumPage() {
             {albums.length} albums · {totalItems} items
           </p>
         </div>
-        <button
+        <Button
+          variant="contained"
+          color="primary"
+          size="large"
           onClick={() => setModal({ type: 'create' })}
-          className="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-lg transition-colors duration-200 text-sm font-medium"
+          sx={{ textTransform: 'none' }}
         >
           Create Album
-        </button>
+        </Button>
       </div>
-
-      {/* Error */}
-      {/* {error && <p className="text-red-500 mb-6 text-sm">Error: {error.message}</p>} */}
 
       {/* Content */}
       {loading ? (
-        <p className="text-gray-500 dark:text-gray-400 text-center mt-16 text-lg">Loading albums…</p>
+        <p className="text-gray-500 dark:text-gray-400 text-center mt-16 text-lg">
+          Loading albums…
+        </p>
       ) : albums.length === 0 ? (
         <p className="text-gray-500 dark:text-gray-400 text-center mt-16 text-lg">
           No albums found. Click “Create Album” to get started.
@@ -98,7 +101,9 @@ export default function AlbumPage() {
       {modal.type === 'delete' && (
         <ModalOverlay onClose={closeModal}>
           <div className="bg-white dark:bg-gray-800 p-6 rounded-xl w-80 shadow-2xl">
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">Delete Album</h2>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
+              Delete Album
+            </h2>
             <p className="text-gray-600 dark:text-gray-300 text-sm">
               Are you sure you want to delete{' '}
               <span className="font-semibold">{modal.album?.albumName}</span>?
