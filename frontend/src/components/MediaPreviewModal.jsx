@@ -1,5 +1,3 @@
-// src/components/MediaPreviewModal.jsx
-
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Typography } from '@mui/material';
@@ -107,12 +105,12 @@ export default function MediaPreviewModal({
             <img
               src={previewUrl}
               alt="Preview"
-              className="w-full rounded-lg object-contain"
+              className="w-full max-h-[35vh] sm:h-auto rounded-lg object-contain"
             />
           ) : (
             <video
               src={previewUrl}
-              className="w-full rounded-lg bg-black"
+              className="w-full max-h-[35vh] sm:h-auto rounded-lg bg-black"
               controls
             />
           )}
@@ -156,7 +154,7 @@ export default function MediaPreviewModal({
               </Typography>
             )}
 
-            <div className="flex justify-end space-x-2">
+            <div className="flex justify-between space-x-2">
               <Button
                 variant="outlined"
                 size="small"
