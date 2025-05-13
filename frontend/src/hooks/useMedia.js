@@ -5,15 +5,22 @@ export default function useMedia(albumId) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const limit = 20;
 
-  // load media when albumId changes
-  const load = useCallback(async () => {
+  const load = useCallback(async (pageToLoad = 1, append = false) => {
     if (!albumId) return;
     setLoading(true);
     setError(null);
     try {
-      const data = await mediaApi.fetchByAlbum(albumId);
-      setItems(data);
+      const data = await mediaApi.fetchByAlbum(albumId, pageToLoad, limit);
+      if (append) {
+        setItems(prev => [...prev, ...data]);
+      } else {
+        setItems(data);
+      }
+      setHasMore(data.length === limit);
       return data;
     } catch (e) {
       console.error('[useMedia] fetch error', e);
@@ -24,11 +31,21 @@ export default function useMedia(albumId) {
     }
   }, [albumId]);
 
-  useEffect(() => {
-    load();
-  }, [load]);
+  const loadMore = useCallback(async () => {
+    if (loading || !hasMore) {
+      return;
+    }
+    const nextPage = page + 1;
+    await load(nextPage, true);
+    setPage(nextPage);
+  }, [loading, hasMore, page, load]);
 
-  // upload and append
+  useEffect(() => {
+    setPage(1);
+    setHasMore(true);
+    load(1);
+  }, [albumId, load]);
+
   const upload = async (file) => {
     if (!albumId) throw new Error('albumId is required');
     setLoading(true);
@@ -45,7 +62,6 @@ export default function useMedia(albumId) {
     }
   };
 
-  // delete and remove
   const remove = async (mediaId) => {
     setLoading(true);
     try {
@@ -67,5 +83,7 @@ export default function useMedia(albumId) {
     reload: load,
     upload,
     remove,
+    loadMore,
+    hasMore,
   };
 }

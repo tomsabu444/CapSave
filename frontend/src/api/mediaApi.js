@@ -23,7 +23,7 @@ api.interceptors.request.use(
 );
 
 const mediaApi = {
-  // upload a file to an album
+    // upload a file to an album
   upload: async (file, albumId) => {
     const form = new FormData();
     form.append('mediaFile', file);
@@ -34,16 +34,23 @@ const mediaApi = {
     return res.data; // { mediaId, albumId, userId, mediaType, mediaUrl, ... }
   },
 
-  // fetch all media in an album
-  fetchByAlbum: async (albumId) => {
-    const res = await api.get(`/${albumId}`);
-    return res.data; // array of media items
+  // fetch all media in an album with pagination
+  fetchByAlbum: async (albumId, page = 1, limit = 20) => {
+    try {
+      const res = await api.get(`/${albumId}`, {
+        params: { page, limit },
+      });
+      return res.data;
+    } catch (err) {
+      console.error('[mediaApi] Fetch error:', err);
+      throw err;
+    }
   },
 
-  // delete a single media item
+    // delete a single media item
   remove: async (mediaId) => {
     const res = await api.delete(`/${mediaId}`);
-    return res.data; // { message: 'Media deleted' }
+    return res.data;
   },
 };
 

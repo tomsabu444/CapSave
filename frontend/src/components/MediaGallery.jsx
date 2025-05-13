@@ -1,8 +1,9 @@
-import React, { useState, Suspense, lazy } from "react";
+import React, { useState, useEffect } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
 import { toast } from "react-toastify";
 import FullScreenView from "./FullScreenView";
 import Loader from "./Loader";
+
 function MediaPreview({ media, onClick }) {
   return (
     <div
@@ -48,14 +49,57 @@ function formatDayKey(dateString) {
   }).format(date);
 }
 
-export default function MediaGallery({ items, loading, error, remove }) {
+export default function MediaGallery({ items, loading, error, remove, loadMore, hasMore, scrollContainerRef }) {
   const [selectedMedia, setSelectedMedia] = useState(null);
 
-  if (loading) {
+  useEffect(() => {
+    const handleScroll = () => {
+      const container = scrollContainerRef.current;
+      if (!container) {
+        console.warn('[MediaGallery] Scroll container ref not found');
+        return;
+      }
+
+      const scrollTop = container.scrollTop;
+      const containerHeight = container.clientHeight;
+      const scrollHeight = container.scrollHeight;
+      const distanceFromBottom = scrollHeight - (scrollTop + containerHeight);
+
+      console.log('[MediaGallery] Scroll event:', {
+        scrollTop,
+        containerHeight,
+        scrollHeight,
+        distanceFromBottom,
+        hasMore,
+        loading,
+      });
+
+      if (distanceFromBottom <= 500 && hasMore && !loading) {
+        console.log('[MediaGallery] Triggering loadMore');
+        loadMore();
+      }
+    };
+
+    const container = scrollContainerRef.current;
+    if (container) {
+      container.addEventListener("scroll", handleScroll, { passive: true });
+      console.log('[MediaGallery] Scroll listener attached to container');
+    } else {
+      console.warn('[MediaGallery] Scroll container not available');
+    }
+
+    return () => {
+      if (container) {
+        container.removeEventListener("scroll", handleScroll);
+      }
+    };
+  }, [hasMore, loading, loadMore, scrollContainerRef]);
+
+  if (loading && items.length === 0) {
     return <Loader />;
   }
 
-  if (!items.length) {
+  if (!items.length && !hasMore) {
     return (
       <p className="p-6 text-gray-500 dark:text-gray-400 text-center">
         No media in this album yet.
@@ -117,6 +161,13 @@ export default function MediaGallery({ items, loading, error, remove }) {
           ))}
         </div>
       ))}
+
+      {loading && (
+        <div className="text-center py-6">
+          <Loader />
+          <p className="text-gray-500 dark:text-gray-400">Loading more...</p>
+        </div>
+      )}
 
       {selectedMedia && (
         <FullScreenView
