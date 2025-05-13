@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import useAlbums from "../hooks/useAlbums";
 import useMedia from "../hooks/useMedia";
@@ -17,7 +17,10 @@ export default function MediaGalleryPage() {
     error: mediaError,
     upload,
     remove,
+    loadMore,
+    hasMore,
   } = useMedia(albumId);
+  const scrollContainerRef = useRef(null);
 
   const { isDragging } = useDropUpload({
     onDrop: async (files) => {
@@ -34,7 +37,11 @@ export default function MediaGalleryPage() {
   });
 
   if (loading) {
-    return <p className="p-6 text-gray-500 dark:text-gray-400 text-center">Loading album…</p>;
+    return (
+      <p className="p-6 text-gray-500 dark:text-gray-400 text-center">
+        Loading album…
+      </p>
+    );
   }
 
   const album = albums.find((a) => a.albumId === albumId);
@@ -54,9 +61,11 @@ export default function MediaGalleryPage() {
 
   return (
     <div
-      className={`min-h-screen bg-gray-100 dark:bg-gray-950 p-6 relative transition-all ${
+      ref={scrollContainerRef}
+      className={`bg-gray-100 dark:bg-gray-950 p-6 relative transition-all ${
         isDragging ? "ring-4 ring-blue-400 ring-opacity-50" : ""
       }`}
+      style={{ height: "100%", overflowY: "auto" }}
     >
       {isDragging && (
         <div className="absolute inset-0 bg-blue-100 dark:bg-blue-900 bg-opacity-50 z-40 flex items-center justify-center pointer-events-none text-blue-700 dark:text-blue-200 font-semibold text-lg">
@@ -81,8 +90,8 @@ export default function MediaGalleryPage() {
         {album.albumName}
       </h1>
       <p className="text-sm text-gray-500 dark:text-gray-400 mb-6">
-        {items.length} items • Created{" "}
-        {new Date(album.createdAt).toLocaleDateString()}
+        Created {new Date(album.createdAt).toLocaleDateString()} • Last Updated{" "}
+        {new Date(album.updatedAt).toLocaleDateString()}
       </p>
 
       <MediaGallery
@@ -91,6 +100,9 @@ export default function MediaGalleryPage() {
         loading={mediaLoading}
         error={mediaError}
         remove={remove}
+        loadMore={loadMore}
+        hasMore={hasMore}
+        scrollContainerRef={scrollContainerRef}
       />
     </div>
   );

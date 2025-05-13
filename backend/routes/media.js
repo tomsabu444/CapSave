@@ -55,6 +55,7 @@ router.post("/", validateUploadFile, async (req, res) => {
 
 /**
  * GET /api/v1/media/:albumId
+ * Query params: page, limit
  * Returns media items with signed URLs and createdAt
  * Fails the request if any media item can't be signed
  */
@@ -62,6 +63,8 @@ router.get("/:albumId", async (req, res) => {
   try {
     const userId = req.user.uid;
     const albumId = req.params.albumId;
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 20;
 
     const albumExists = await Album.exists({ _id: albumId, userId });
     if (!albumExists) {
@@ -70,6 +73,8 @@ router.get("/:albumId", async (req, res) => {
 
     const items = await Media.find({ userId, albumId })
       .sort("-createdAt")
+      .skip((page - 1) * limit)
+      .limit(limit)
       .select("_id mediaType mediaUrl createdAt");
 
     const sanitizedItems = [];
@@ -93,7 +98,7 @@ router.get("/:albumId", async (req, res) => {
     res.json(sanitizedItems);
   } catch (err) {
     console.error("Get media error:", err);
-     res.status(500).json({ error: "Failed to fetch media" });
+    res.status(500).json({ error: "Failed to fetch media" });
   }
 });
 

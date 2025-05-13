@@ -5,6 +5,7 @@ import {
   InputAdornment,
   IconButton,
   Divider,
+  CircularProgress,
 } from "@mui/material";
 import { Visibility, VisibilityOff } from "@mui/icons-material";
 import {
@@ -34,6 +35,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
 
   const [pendingVerification, setPendingVerification] = useState(false);
   const [pendingEmail, setPendingEmail] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const navigate = useNavigate();
 
@@ -48,9 +50,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
       if (!/[0-9]/.test(value)) errors.push("• At least one number");
       if (!/[!@#$%^&*(),.?\":{}|<>]/.test(value))
         errors.push("• At least one special character");
-
       setFormErrors((prev) => ({ ...prev, password: errors }));
-
       if (form.confirmPassword && value !== form.confirmPassword) {
         setFormErrors((prev) => ({
           ...prev,
@@ -60,27 +60,23 @@ const AuthFormHandler = ({ isRegister, from }) => {
         setFormErrors((prev) => ({ ...prev, confirmPassword: "" }));
       }
     }
-
     if (name === "confirmPassword") {
-      if (value !== form.password) {
-        setFormErrors((prev) => ({
-          ...prev,
-          confirmPassword: "Passwords do not match",
-        }));
-      } else {
-        setFormErrors((prev) => ({ ...prev, confirmPassword: "" }));
-      }
+      setFormErrors((prev) => ({
+        ...prev,
+        confirmPassword:
+          value !== form.password ? "Passwords do not match" : "",
+      }));
     }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     if (formErrors.password.length > 0 || formErrors.confirmPassword) {
       toast.error("Fix validation errors before submitting.");
       return;
     }
 
+    setIsSubmitting(true);
     try {
       if (isRegister) {
         const fullName = `${form.firstName} ${form.lastName}`;
@@ -115,10 +111,13 @@ const AuthFormHandler = ({ isRegister, from }) => {
       } else {
         toast.error(err.message);
       }
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
   const handleGoogleLogin = async () => {
+    setIsSubmitting(true);
     try {
       const result = await signInWithGoogle();
       toast.success("Google login successful");
@@ -126,6 +125,8 @@ const AuthFormHandler = ({ isRegister, from }) => {
       navigate(target, { replace: true });
     } catch (err) {
       toast.error(err.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -141,8 +142,17 @@ const AuthFormHandler = ({ isRegister, from }) => {
     );
   }
 
+  if (isSubmitting) {
+    // show a full-page loader while waiting
+    return (
+      <div className="flex items-center justify-center">
+        <CircularProgress />
+      </div>
+    );
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-4 opacity-90">
       {isRegister && (
         <div className="flex gap-4">
           <TextField
@@ -152,6 +162,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
             onChange={handleChange}
             required
             fullWidth
+            disabled={isSubmitting}
           />
           <TextField
             label="Last Name"
@@ -160,6 +171,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
             onChange={handleChange}
             required
             fullWidth
+            disabled={isSubmitting}
           />
         </div>
       )}
@@ -172,6 +184,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
         onChange={handleChange}
         required
         fullWidth
+        disabled={isSubmitting}
       />
 
       <TextField
@@ -182,6 +195,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
         onChange={handleChange}
         required
         fullWidth
+        disabled={isSubmitting}
         error={formErrors.password.length > 0}
         helperText={
           formErrors.password.length > 0 && (
@@ -198,6 +212,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
               <IconButton
                 onClick={() => setShowPassword((prev) => !prev)}
                 edge="end"
+                disabled={isSubmitting}
               >
                 {showPassword ? <VisibilityOff /> : <Visibility />}
               </IconButton>
@@ -215,6 +230,7 @@ const AuthFormHandler = ({ isRegister, from }) => {
           onChange={handleChange}
           required
           fullWidth
+          disabled={isSubmitting}
           error={!!formErrors.confirmPassword}
           helperText={formErrors.confirmPassword}
         />
@@ -226,13 +242,19 @@ const AuthFormHandler = ({ isRegister, from }) => {
             type="button"
             className="text-sm text-blue-600 hover:underline focus:outline-none"
             onClick={() => navigate("/forgot-password")}
+            disabled={isSubmitting}
           >
             Forgot Password?
           </button>
         </div>
       )}
 
-      <Button type="submit" variant="contained" fullWidth>
+      <Button
+        type="submit"
+        variant="contained"
+        fullWidth
+        disabled={isSubmitting}
+      >
         {isRegister ? "Register" : "Login"}
       </Button>
 
@@ -241,8 +263,9 @@ const AuthFormHandler = ({ isRegister, from }) => {
       <button
         type="button"
         onClick={handleGoogleLogin}
-        className="flex items-center justify-center gap-2 border border-gray-300 py-3 w-full rounded-md hover:bg-gray-50"
+        className="flex items-center justify-center gap-2 border border-gray-300 py-3 w-full rounded-md hover:bg-gray-50 disabled:opacity-50"
         aria-label="Sign in with Google"
+        disabled={isSubmitting}
       >
         <svg width="20" viewBox="0 0 512 512">
           <path
